@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Test</title></head>
+<body>
+<h1 id="title">Loading...</h1>
+<div id="out"></div>
+<script>
+document.getElementById('title').textContent = 'JS WORKS!';
+var arr = [{"name":"Escola A","score":90},{"name":"Escola B","score":70}];
+var html = '';
+for(var i=0;i<arr.length;i++){
+  html += '<p>' + arr[i].name + ' - ' + arr[i].score + '</p>';
+}
+document.getElementById('out').innerHTML = html;
+</script>
+</body>
+</html>

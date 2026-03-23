@@ -1,0 +1,17 @@
+# Dados (contêm info pessoal/empresarial)
+*.xlsx
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# OS
+.DS_Store
+
+# HTML gerado (regenerado pelos scripts)
+dashboard.html
+restaurantes.html
+index.html
+.env
