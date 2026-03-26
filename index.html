@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Easy Leads AI</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta property="og:title" content="Easy Leads AI">
+<meta property="og:description" content="AI-powered lead prospecting for local businesses">
+<meta property="og:type" content="website">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--surface:#f8fafc;--alt:#f1f5f9;
+  --text:#0f172a;--body:#334155;--muted:#64748b;--dim:#94a3b8;
+  --accent:#3b82f6;--accent-hover:#2563eb;--accent-light:#eff6ff;--accent-dark:#1d4ed8;
+  --border:#e2e8f0;
+  --shadow:0 1px 3px rgba(0,0,0,.06);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+  --shadow-lg:0 8px 24px rgba(0,0,0,.1);
+  --radius:12px;--radius-sm:8px;--radius-pill:99px;
+}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--body);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* Container */
+.container{max-width:1120px;margin:0 auto;padding:0 32px}
+
+/* Header */
+.header{padding:40px 0 0;border-bottom:1px solid var(--border)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;padding-bottom:32px}
+.logo{height:32px}
+.header-tag{font-size:12px;font-weight:500;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:4px 12px;border-radius:var(--radius-pill)}
+
+/* Hero */
+.hero{padding:48px 0 40px}
+.hero h1{font-size:38px;font-weight:800;color:var(--text);letter-spacing:-.03em;line-height:1.15}
+.hero p{color:var(--muted);font-size:16px;margin-top:12px;max-width:540px;line-height:1.6}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:0 0 48px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center}
+.stat-card-number{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-.02em}
+.stat-card-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-top:4px}
+
+/* Section */
+.section{padding:40px 0}
+.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);margin-bottom:20px}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+
+/* Card */
+.card{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;text-decoration:none;color:inherit;
+  display:flex;flex-direction:column;gap:16px;
+  transition:all .2s ease;
+}
+.card.active:hover{border-color:var(--card-accent,var(--accent));box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.card.suggested{opacity:.55;transition:all .2s}
+.card.suggested:hover{opacity:.8;transform:translateY(-1px)}
+
+/* Card top */
+.card-top{display:flex;align-items:center;justify-content:space-between}
+.card-icon{
+  width:38px;height:38px;border-radius:var(--radius-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:white;
+  background:var(--card-accent,var(--accent));
+}
+.badge{font-size:10px;font-weight:600;padding:4px 10px;border-radius:var(--radius-pill);letter-spacing:.03em}
+.badge-active{background:#dcfce7;color:#16a34a}
+.badge-soon{background:var(--alt);color:var(--dim)}
+
+/* Card content */
+.card-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.01em}
+.card-desc{font-size:13px;color:var(--muted);line-height:1.5}
+
+/* Card stats */
+.card-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:14px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.si{text-align:center}
+.si-val{display:block;font-size:16px;font-weight:700;color:var(--text)}
+.si-lbl{display:block;font-size:10px;color:var(--dim);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
+
+/* Score bar */
+.score-wrap{display:flex;flex-direction:column;gap:6px}
+.score-top{display:flex;justify-content:space-between;font-size:11px;font-weight:500;color:var(--muted)}
+.score-top span:last-child{color:var(--card-accent,var(--accent));font-weight:600}
+.score-bg{background:var(--border);border-radius:var(--radius-pill);height:4px;overflow:hidden}
+.score-fill{height:100%;border-radius:var(--radius-pill);background:var(--card-accent,var(--accent));transition:width .4s ease}
+
+/* Potential dots */
+.potential{display:flex;gap:4px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border)}
+.dot.on{background:var(--card-accent,var(--accent))}
+
+/* Buttons */
+.btn{
+  display:block;text-align:center;padding:10px 16px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .15s;
+}
+.btn-fill{background:var(--card-accent,var(--accent));color:white}
+.btn-fill:hover{filter:brightness(1.1)}
+.btn-outline{
+  background:transparent;
+  border:1px solid color-mix(in srgb,var(--card-accent,var(--accent)) 40%,var(--border));
+  color:var(--card-accent,var(--accent));
+}
+.btn-outline:hover{background:color-mix(in srgb,var(--card-accent,var(--accent)) 6%,white)}
+.btn-subtle{
+  display:block;text-align:center;font-size:11px;font-weight:500;
+  color:var(--dim);cursor:pointer;padding:6px 0;transition:color .15s;background:none;border:none;
+}
+.btn-subtle:hover{color:var(--muted)}
+
+/* Divider */
+.divider{height:1px;background:var(--border)}
+
+/* Footer */
+.footer{text-align:center;padding:48px 0 40px;font-size:12px;color:var(--dim)}
+.footer a{color:var(--accent);text-decoration:none;font-weight:500}
+.footer a:hover{text-decoration:underline}
+.footer-logo{height:20px;margin-bottom:12px;opacity:.4}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);backdrop-filter:blur(4px);z-index:300;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--bg);border-radius:var(--radius);padding:28px;width:90%;max-width:480px;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow-lg);border:1px solid var(--border)}
+.modal-box h2{font-size:18px;font-weight:700;color:var(--text)}
+.modal-log{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:11px;font-family:'SF Mono',ui-monospace,monospace;color:var(--muted);min-height:80px;max-height:280px;overflow-y:auto;line-height:1.8;margin-top:16px}
+
+/* Responsive */
+@media(max-width:768px){
+  .container{padding:0 20px}
+  .hero h1{font-size:28px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .grid{grid-template-columns:1fr}
+  .header-tag{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header class="header">
+    <div class="header-inner">
+      <svg class="logo" viewBox="0 0 240 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="13" stroke="#3b82f6" stroke-width="1.8" fill="none"/>
+        <circle cx="16" cy="16" r="5" fill="#3b82f6"/>
+        <line x1="16" y1="1" x2="16" y2="6" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="16" y1="26" x2="16" y2="31" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="1" y1="16" x2="6" y2="16" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="26" y1="16" x2="31" y2="16" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="26" y1="3.5" x2="29" y2="3.5" stroke="#3b82f6" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="27.5" y1="2" x2="27.5" y2="5" stroke="#3b82f6" stroke-width="1.3" stroke-linecap="round"/>
+        <text x="40" y="22" font-family="Inter,-apple-system,sans-serif" font-size="18" font-weight="700" fill="#0f172a" letter-spacing="-0.3">Easy Leads</text>
+        <text x="162" y="22" font-family="Inter,-apple-system,sans-serif" font-size="18" font-weight="500" fill="#3b82f6" letter-spacing="-0.3">AI</text>
+      </svg>
+      <span class="header-tag">Lead Intelligence Platform</span>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Find your next clients,<br>automatically.</h1>
+    <p>AI-powered lead prospecting for local businesses. Scrape, score, and qualify leads across multiple niches -- all in one place.</p>
+  </section>
+
+  <section class="stats">
+    <div class="stat-card">
+      <div class="stat-card-number">177</div>
+      <div class="stat-card-label">Total Leads</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-number">105</div>
+      <div class="stat-card-label">Instagram</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-number">170</div>
+      <div class="stat-card-label">Phone</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-number">10</div>
+      <div class="stat-card-label">Niches</div>
+    </div>
+  </section>
+</div>
+
+<div class="divider"></div>
+
+<div class="container">
+  <section class="section">
+    <div class="section-title">Active Niches</div>
+    <div class="grid">
+      <a href="dashboard.html" class="card active" style="--card-accent:#0ea5e9">
+        <div class="card-top">
+          <div class="card-icon" style="background:#0ea5e9">S</div>
+          <span class="badge badge-active">Active</span>
+        </div>
+        <h2 class="card-title">Surf Schools</h2>
+        <p class="card-desc">Surf schools and camps in the Peniche and Baleal area</p>
+        <div class="card-stats">
+          <div class="si"><span class="si-val">77</span><span class="si-lbl">Leads</span></div>
+          <div class="si"><span class="si-val">60</span><span class="si-lbl">Instagram</span></div>
+          <div class="si"><span class="si-val">76</span><span class="si-lbl">Phone</span></div>
+          <div class="si"><span class="si-val">77</span><span class="si-lbl">Cold</span></div>
+        </div>
+        <div class="score-wrap">
+          <div class="score-top"><span>Avg. Score</span><span>54 / 100</span></div>
+          <div class="score-bg"><div class="score-fill" style="width:54%"></div></div>
+        </div>
+        <button class="btn btn-fill" style="background:#0ea5e9">Open Dashboard</button>
+        <button class="btn-subtle" onclick="event.preventDefault();launchScraper('surf','Surf Schools','dashboard.html')">Refresh Data</button>
+      </a>
+      <a href="restaurantes.html" class="card active" style="--card-accent:#f97316">
+        <div class="card-top">
+          <div class="card-icon" style="background:#f97316">R</div>
+          <span class="badge badge-active">Active</span>
+        </div>
+        <h2 class="card-title">Restaurants</h2>
+        <p class="card-desc">Restaurants, cafes, and takeaway within 15km of Peniche</p>
+        <div class="card-stats">
+          <div class="si"><span class="si-val">50</span><span class="si-lbl">Leads</span></div>
+          <div class="si"><span class="si-val">30</span><span class="si-lbl">Instagram</span></div>
+          <div class="si"><span class="si-val">48</span><span class="si-lbl">Phone</span></div>
+          <div class="si"><span class="si-val">50</span><span class="si-lbl">Cold</span></div>
+        </div>
+        <div class="score-wrap">
+          <div class="score-top"><span>Avg. Score</span><span>57 / 100</span></div>
+          <div class="score-bg"><div class="score-fill" style="width:57%"></div></div>
+        </div>
+        <button class="btn btn-fill" style="background:#f97316">Open Dashboard</button>
+        <button class="btn-subtle" onclick="event.preventDefault();launchScraper('restaurantes','Restaurants','restaurantes.html')">Refresh Data</button>
+      </a>
+      <a href="imoveis.html" class="card active" style="--card-accent:#8b5cf6">
+        <div class="card-top">
+          <div class="card-icon" style="background:#8b5cf6">RE</div>
+          <span class="badge badge-active">Active</span>
+        </div>
+        <h2 class="card-title">Real Estate</h2>
+        <p class="card-desc">Lead qualification, visit scheduling, automated follow-up</p>
+        <div class="card-stats">
+          <div class="si"><span class="si-val">50</span><span class="si-lbl">Leads</span></div>
+          <div class="si"><span class="si-val">15</span><span class="si-lbl">Instagram</span></div>
+          <div class="si"><span class="si-val">46</span><span class="si-lbl">Phone</span></div>
+          <div class="si"><span class="si-val">50</span><span class="si-lbl">Cold</span></div>
+        </div>
+        <div class="score-wrap">
+          <div class="score-top"><span>Avg. Score</span><span>38 / 100</span></div>
+          <div class="score-bg"><div class="score-fill" style="width:38%"></div></div>
+        </div>
+        <button class="btn btn-fill" style="background:#8b5cf6">Open Dashboard</button>
+        <button class="btn-subtle" onclick="event.preventDefault();launchScraper('imoveis','Real Estate','imoveis.html')">Refresh Data</button>
+      </a>
+    </div>
+  </section>
+</div>
+
+<div class="divider"></div>
+
+<div class="container">
+  <section class="section">
+    <div class="section-title">Suggested Niches</div>
+    <div class="grid">
+      <div class="card suggested" style="--card-accent:#ec4899">
+        <div class="card-top">
+          <div class="card-icon" style="background:#ec4899">C</div>
+          <span class="badge badge-soon">Not Scraped</span>
+        </div>
+        <h2 class="card-title">Clinics / Dentists</h2>
+        <p class="card-desc">Appointments, reminders, post-visit follow-up, new patient acquisition</p>
+        <div class="potential"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span></div>
+        <button class="btn btn-outline" onclick="launchScraper('clinicas','Clinics / Dentists','clinicas.html')">Launch Scraper</button>
+      </div>
+      <div class="card suggested" style="--card-accent:#14b8a6">
+        <div class="card-top">
+          <div class="card-icon" style="background:#14b8a6">A</div>
+          <span class="badge badge-soon">Not Scraped</span>
+        </div>
+        <h2 class="card-title">Short-Term Rentals</h2>
+        <p class="card-desc">Automated check-in, tourist FAQ, review management</p>
+        <div class="potential"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot"></span></div>
+        <button class="btn btn-outline" onclick="launchScraper('alojamento','Short-Term Rentals','alojamento.html')">Launch Scraper</button>
+      </div>
+      <div class="card suggested" style="--card-accent:#a78bfa">
+        <div class="card-top">
+          <div class="card-icon" style="background:#a78bfa">W</div>
+          <span class="badge badge-soon">Not Scraped</span>
+        </div>
+        <h2 class="card-title">Physio / Wellness</h2>
+        <p class="card-desc">Surf injuries drive high demand. Bookings, training plans, upsell</p>
+        <div class="potential"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot"></span></div>
+        <button class="btn btn-outline" onclick="launchScraper('fisioterapia','Physio / Wellness','fisioterapia.html')">Launch Scraper</button>
+      </div>
+      <div class="card suggested" style="--card-accent:#34d399">
+        <div class="card-top">
+          <div class="card-icon" style="background:#34d399">T</div>
+          <span class="badge badge-soon">Not Scraped</span>
+        </div>
+        <h2 class="card-title">Car Rental / Transfers</h2>
+        <p class="card-desc">Bookings, confirmations, route planning, insurance upsell</p>
+        <div class="potential"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot"></span></div>
+        <button class="btn btn-outline" onclick="launchScraper('rentacar','Car Rental / Transfers','rentacar.html')">Launch Scraper</button>
+      </div>
+      <div class="card suggested" style="--card-accent:#fb923c">
+        <div class="card-top">
+          <div class="card-icon" style="background:#fb923c">B</div>
+          <span class="badge badge-soon">Not Scraped</span>
+        </div>
+        <h2 class="card-title">Barbers / Salons</h2>
+        <p class="card-desc">Bookings, confirmations, reminders, service upsell</p>
+        <div class="potential"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
+        <button class="btn btn-outline" onclick="launchScraper('barbearias','Barbers / Salons','barbearias.html')">Launch Scraper</button>
+      </div>
+      <div class="card suggested" style="--card-accent:#38bdf8">
+        <div class="card-top">
+          <div class="card-icon" style="background:#38bdf8">SS</div>
+          <span class="badge badge-soon">Not Scraped</span>
+        </div>
+        <h2 class="card-title">Surf Shops</h2>
+        <p class="card-desc">Inventory, rentals, repairs, product arrival notifications</p>
+        <div class="potential"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
+        <button class="btn btn-outline" onclick="launchScraper('lojas_surf','Surf Shops','lojas_surf.html')">Launch Scraper</button>
+      </div>
+      <div class="card suggested" style="--card-accent:#f472b6">
+        <div class="card-top">
+          <div class="card-icon" style="background:#f472b6">P</div>
+          <span class="badge badge-soon">Not Scraped</span>
+        </div>
+        <h2 class="card-title">Surf Photographers</h2>
+        <p class="card-desc">Photo delivery, session packs, booking management</p>
+        <div class="potential"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
+        <button class="btn btn-outline" onclick="launchScraper('fotografos','Surf Photographers','fotografos.html')">Launch Scraper</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <svg class="footer-logo" viewBox="0 0 240 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="13" stroke="#94a3b8" stroke-width="1.8" fill="none"/>
+      <circle cx="16" cy="16" r="5" fill="#94a3b8"/>
+      <line x1="16" y1="1" x2="16" y2="6" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="16" y1="26" x2="16" y2="31" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="1" y1="16" x2="6" y2="16" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="26" y1="16" x2="31" y2="16" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"/>
+      <text x="40" y="22" font-family="Inter,-apple-system,sans-serif" font-size="18" font-weight="700" fill="#94a3b8" letter-spacing="-0.3">Easy Leads</text>
+      <text x="162" y="22" font-family="Inter,-apple-system,sans-serif" font-size="18" font-weight="500" fill="#94a3b8" letter-spacing="-0.3">AI</text>
+    </svg>
+    <p>Built by <a href="https://github.com/raphabruno7">Raphael Bruno</a></p>
+  </div>
+</footer>
+
+<div id="scraper-modal" class="modal-overlay">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 id="modal-title"></h2>
+      <button onclick="closeScraperModal()" style="background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:4px">&times;</button>
+    </div>
+    <div id="modal-log" class="modal-log"></div>
+    <div id="modal-actions" style="margin-top:14px">
+      <button id="modal-open-btn" class="btn btn-fill" style="display:none;width:100%" onclick="openDashboard()">Open Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var _nicho=null,_dashboard=null,_poll=null;
+function launchScraper(n,l,d){_nicho=n;_dashboard=d;document.getElementById('modal-title').textContent=l;document.getElementById('modal-log').innerHTML='<span style="color:var(--accent)">Starting scraper...</span>';document.getElementById('modal-open-btn').style.display='none';document.getElementById('scraper-modal').className='modal-overlay open';fetch('/api/scrape/'+n).then(r=>r.json()).then(d=>{if(d.status==='already_running')appendLog('Already running...');startPolling()}).catch(e=>appendLog('Server not responding. Run: python3 server.py'))}
+function startPolling(){if(_poll)clearInterval(_poll);_poll=setInterval(pollStatus,1500)}
+function pollStatus(){if(!_nicho)return;fetch('/api/status/'+_nicho).then(r=>r.json()).then(d=>{var el=document.getElementById('modal-log');el.innerHTML=(d.log||[]).map(l=>'<span style="color:'+(l.includes('Done')||l.includes('Complete')?'#16a34a':l.includes('Error')?'#dc2626':'var(--muted)')+'">'+l+'</span>').join('<br>');el.scrollTop=el.scrollHeight;if(d.status==='done'){clearInterval(_poll);document.getElementById('modal-open-btn').style.display='block';setTimeout(()=>location.reload(),2e3)}else if(d.status==='error')clearInterval(_poll)})}
+function appendLog(m){document.getElementById('modal-log').innerHTML+='<br>'+m}
+function openDashboard(){if(_dashboard)window.location.href=_dashboard}
+function closeScraperModal(){if(_poll)clearInterval(_poll);document.getElementById('scraper-modal').className='modal-overlay'}
+</script>
+</body>
+</html>

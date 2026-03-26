@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Restaurants — AI Agent Leads</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+* { box-sizing:border-box; margin:0; padding:0 }
+body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#ffffff; color:#334155; min-height:100vh }
+.header { background:#ffffff; padding:20px 24px; position:sticky; top:0; z-index:100; border-bottom:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,.06) }
+.back-link { font-size:13px; color:#3b82f6; text-decoration:none; display:inline-block; margin-bottom:8px }
+.back-link:hover { text-decoration:underline }
+.header h1 { font-size:20px; font-weight:700; color:#0f172a; margin-bottom:4px }
+.header .subtitle { font-size:13px; color:#64748b; margin-bottom:12px }
+.stats { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px }
+.stat { background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:8px 14px; font-size:12px; color:#64748b }
+.stat b { color:#0f172a; font-size:16px; display:block }
+.filters { display:flex; gap:8px; flex-wrap:wrap; align-items:center }
+.filters input, .filters select { background:#f8fafc; border:1px solid #e2e8f0; color:#334155; padding:7px 12px; border-radius:6px; font-size:13px; outline:none }
+.filters input:focus, .filters select:focus { border-color:#3b82f6 }
+table { width:100%; border-collapse:collapse }
+thead th { background:#ffffff; padding:10px 8px; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#64748b; text-align:left; position:sticky; top:0; border-bottom:1px solid #e2e8f0 }
+tbody td { border-bottom:1px solid #f1f5f9 }
+tbody tr.row:hover td { background:#f8fafc }
+.modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.3); backdrop-filter:blur(4px); z-index:200; align-items:center; justify-content:center }
+.modal-bg.open { display:flex }
+.modal { background:#ffffff; border:1px solid #e2e8f0; box-shadow:0 8px 24px rgba(0,0,0,.1); border-radius:12px; padding:28px; max-width:520px; width:90%; max-height:85vh; overflow-y:auto; position:relative }
+.modal h2 { font-size:18px; margin-bottom:16px; color:#0f172a }
+.modal-row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid #e2e8f0; font-size:13px }
+.modal-row .label { color:#64748b }
+.modal-row .val { color:#334155; text-align:right; max-width:60% }
+.modal-close { position:absolute; top:14px; right:18px; background:none; border:none; color:#94a3b8; font-size:22px; cursor:pointer }
+.modal-status { margin-top:14px }
+.modal-status select { width:100%; background:#f8fafc; border:1px solid #e2e8f0; color:#334155; padding:8px; border-radius:6px; font-size:13px }
+.modal-bio { margin-top:10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:10px; font-size:12px; color:#64748b; line-height:1.5 }
+a { color:#3b82f6 }
+</style>
+</head>
+<body>
+<div class="header">
+  <a href="index.html" class="back-link">&larr; Back</a>
+  <h1>Restaurants</h1>
+  <div class="subtitle">Lead prospecting pipeline &mdash; Peniche area</div>
+  <div class="stats">
+    <div class="stat"><b>50</b>Total</div>
+    <div class="stat"><b>30</b>Instagram</div>
+    <div class="stat"><b>4</b>Takeaway</div>
+    <div class="stat"><b>48</b>Phone</div>
+    <div class="stat"><b>57.0</b>Avg Score</div>
+  </div>
+  <div class="filters">
+    <input type="text" id="search" placeholder="Search..." oninput="filter()" style="width:200px">
+    <select id="filterStatus" onchange="filter()">
+      <option value="">All statuses</option>
+      <option value="Cold">Cold</option>
+      <option value="Contacted">Contacted</option>
+      <option value="Interested">Proposal</option>
+      <option value="Client">Closed</option>
+    </select>
+    <select id="filterIG" onchange="filter()">
+      <option value="">With/Without Instagram</option>
+      <option value="yes">With Instagram</option>
+      <option value="no">Without Instagram</option>
+    </select>
+    <select id="filterTA" onchange="filter()">
+      <option value="">All</option>
+      <option value="yes">Takeaway/Delivery</option>
+      <option value="no">No delivery</option>
+    </select>
+    <select id="sortBy" onchange="filter()">
+      <option value="score">Score AI</option>
+      <option value="reviews">Reviews</option>
+      <option value="followers">Followers</option>
+      <option value="rating">Rating</option>
+    </select>
+  </div>
+</div>
+<div style="overflow-x:auto">
+<table>
+  <thead><tr>
+    <th>Business</th><th>Instagram</th><th style="text-align:right">Followers</th>
+    <th style="text-align:right">Reviews</th><th style="text-align:center">Rating</th>
+    <th>Phone</th><th style="text-align:center">Score</th><th style="text-align:center">Status</th>
+  </tr></thead>
+  <tbody id="tbody"><tr class="row" data-name="MASTER&#x27;S BURGER" data-handle="@mastersburgerferrel" data-status="Cold" data-ig="yes" data-ta="yes" onclick="openModal(0)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500">🛵 MASTER&#x27;S BURGER <a href="nan" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/mastersburgerferrel" target="_blank" style="color:#e1306c;text-decoration:none">@mastersburgerferrel</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">271</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">604</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.6</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262091426" target="_blank" style="color:#25d366;text-decoration:none">+351 262091426</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">83</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Maharani Peniche" data-handle="@maharanipeniche" data-status="Cold" data-ig="yes" data-ta="yes" onclick="openModal(1)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500">🛵 Maharani Peniche <a href="https://maharanipeniche.pt/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/maharanipeniche" target="_blank" style="color:#e1306c;text-decoration:none">@maharanipeniche</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">134</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">867</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262781268" target="_blank" style="color:#25d366;text-decoration:none">+351 262781268</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">83</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Foz Restaurante" data-handle="@trufasdecebolada" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(2)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Foz Restaurante <a href="https://www.facebook.com/FozRestaurante/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/trufasdecebolada" target="_blank" style="color:#e1306c;text-decoration:none">@trufasdecebolada</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">10.438</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.855</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351261469348" target="_blank" style="color:#25d366;text-decoration:none">+351 261469348</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">75</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Toca do Texugo" data-handle="@dastascascoracao" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(3)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Toca do Texugo <a href="https://vix360.com.br/tocadotexugo" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/dastascascoracao" target="_blank" style="color:#e1306c;text-decoration:none">@dastascascoracao</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">29.870</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.223</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.6</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262783852" target="_blank" style="color:#25d366;text-decoration:none">+351 262783852</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">75</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Taberna do Ganhão" data-handle="@taberna_do_ganhao" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(4)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Taberna do Ganhão <a href="http://www.facebook.com/Taberna-do-Ganh%C3%A3o-417150245123783/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/taberna_do_ganhao" target="_blank" style="color:#e1306c;text-decoration:none">@taberna_do_ganhao</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">4.260</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">2.708</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.7</td>
+      <td style="padding:10px 8px;font-size:12px">—</td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">74</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Xakra Beach Bar" data-handle="@xakrabeachbar" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(5)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Xakra Beach Bar <a href="https://xakrabeachbar.com/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/xakrabeachbar" target="_blank" style="color:#e1306c;text-decoration:none">@xakrabeachbar</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">3.904</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">2.742</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.6</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351965172166" target="_blank" style="color:#25d366;text-decoration:none">+351 965172166</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">74</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="A Nova Casa de Ramiro" data-handle="@thiagoassistv" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(6)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> A Nova Casa de Ramiro <a href="http://anovacasaderamiro.com/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/thiagoassistv" target="_blank" style="color:#e1306c;text-decoration:none">@thiagoassistv</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.713</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.139</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.6</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351967265945" target="_blank" style="color:#25d366;text-decoration:none">+351 967265945</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">72</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Profresco Peixaria &amp; Restaurante" data-handle="@profresco" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(7)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Profresco Peixaria &amp; Restaurante <a href="http://www.profresco.pt/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/profresco" target="_blank" style="color:#e1306c;text-decoration:none">@profresco</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">19.312</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">3.606</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.3</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262785186" target="_blank" style="color:#25d366;text-decoration:none">+351 262785186</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">72</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Tribeca" data-handle="@tribecapt" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(8)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Tribeca <a href="http://www.tribeca-restaurante.com/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/tribecapt" target="_blank" style="color:#e1306c;text-decoration:none">@tribecapt</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.264</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">898</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262909461" target="_blank" style="color:#25d366;text-decoration:none">+351 262909461</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">71</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="O Traçadinho" data-handle="@300diasnooeste" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(9)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> O Traçadinho <a href="https://tracadinho.restaurantesdeobidos.com/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/300diasnooeste" target="_blank" style="color:#e1306c;text-decoration:none">@300diasnooeste</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">753</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">662</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.6</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262959489" target="_blank" style="color:#25d366;text-decoration:none">+351 262959489</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">70</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Restaurante Taberna Dos Almocreves" data-handle="@tabernadosalmocreves" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(10)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Restaurante Taberna Dos Almocreves <a href="https://tabernadosalmocreves.web1.pt/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/tabernadosalmocreves" target="_blank" style="color:#e1306c;text-decoration:none">@tabernadosalmocreves</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">2.337</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">684</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.7</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262709209" target="_blank" style="color:#25d366;text-decoration:none">+351 262709209</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">70</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Abrigo do Pescador" data-handle="@abrigodopescador" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(11)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Abrigo do Pescador <a href="https://abrigodopescador.pt/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/abrigodopescador" target="_blank" style="color:#e1306c;text-decoration:none">@abrigodopescador</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">3.318</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.502</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.2</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351933267453" target="_blank" style="color:#25d366;text-decoration:none">+351 933267453</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">69</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Tasca do Joel" data-handle="@tascadojoel" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(12)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Tasca do Joel <a href="https://www.tascadojoel.pt/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/tascadojoel" target="_blank" style="color:#e1306c;text-decoration:none">@tascadojoel</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">9.756</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">3.744</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262782945" target="_blank" style="color:#25d366;text-decoration:none">+351 262782945</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">69</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Riclé Bar" data-handle="@riclebar" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(13)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Riclé Bar <a href="https://www.riclebar.pt/en" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/riclebar" target="_blank" style="color:#e1306c;text-decoration:none">@riclebar</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">4.597</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">655</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.7</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262769103" target="_blank" style="color:#25d366;text-decoration:none">+351 262769103</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">68</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Dom José" data-handle="@domjosebarbershop" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(14)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Dom José <a href="nan" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/domjosebarbershop" target="_blank" style="color:#e1306c;text-decoration:none">@domjosebarbershop</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">649</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.019</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.8</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262604384" target="_blank" style="color:#25d366;text-decoration:none">+351 262604384</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">67</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Marginal" data-handle="@marginalrestaurante_peniche" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(15)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Marginal <a href="https://instagram.com/marginalrestaurante_peniche" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/marginalrestaurante_peniche" target="_blank" style="color:#e1306c;text-decoration:none">@marginalrestaurante_peniche</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">2.644</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">572</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.8</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351968907248" target="_blank" style="color:#25d366;text-decoration:none">+351 968907248</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">67</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Rocha" data-handle="@rest.rocha" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(16)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Rocha <a href="https://www.tripadvisor.pt/Restaurant_Review-g608952-d8299191-Reviews-Restaurante_Rocha-Peniche_Leiria_District_Central_Portugal.html" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/rest.rocha" target="_blank" style="color:#e1306c;text-decoration:none">@rest.rocha</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">617</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.208</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.4</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262782147" target="_blank" style="color:#25d366;text-decoration:none">+351 262782147</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">67</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Restaurante D Raiz" data-handle="@alexandrepereirada74" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(17)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Restaurante D Raiz <a href="https://linktr.ee/draizrestaurante" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/alexandrepereirada74" target="_blank" style="color:#e1306c;text-decoration:none">@alexandrepereirada74</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">700</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">926</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.7</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351918590462" target="_blank" style="color:#25d366;text-decoration:none">+351 918590462</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">66</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Areal Beach Bar by Chakall" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="yes" onclick="openModal(18)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500">🛵 Areal Beach Bar by Chakall <a href="nan" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.345</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351962690200" target="_blank" style="color:#25d366;text-decoration:none">+351 962690200</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">65</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Cervejaria O Litro" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="yes" onclick="openModal(19)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500">🛵 Cervejaria O Litro <a href="https://grupolitro.com/cervejaria-o-litro/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.271</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262406733" target="_blank" style="color:#25d366;text-decoration:none">+351 262406733</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">65</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Restaurante Italiano O Outro" data-handle="@ooutro5" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(20)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Restaurante Italiano O Outro <a href="https://www.facebook.com/RestauranteItalianoOOutro/?locale=pt_PT" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/ooutro5" target="_blank" style="color:#e1306c;text-decoration:none">@ooutro5</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.097</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.246</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351965236147" target="_blank" style="color:#25d366;text-decoration:none">+351 965236147</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">65</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="S. Pedro Peniche" data-handle="@ps_peniche" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(21)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> S. Pedro Peniche <a href="https://www.facebook.com/pg/s.pedro85" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/ps_peniche" target="_blank" style="color:#e1306c;text-decoration:none">@ps_peniche</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">415</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">785</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351917862901" target="_blank" style="color:#25d366;text-decoration:none">+351 917862901</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">65</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Oficina do Hambúrguer" data-handle="@oficinadohamburguer_peniche" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(22)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Oficina do Hambúrguer <a href="nan" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/oficinadohamburguer_peniche" target="_blank" style="color:#e1306c;text-decoration:none">@oficinadohamburguer_peniche</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.286</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">874</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.4</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262104782" target="_blank" style="color:#25d366;text-decoration:none">+351 262104782</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">64</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Celeiro Café" data-handle="@celeirocafe" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(23)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Celeiro Café <a href="https://www.casadocampopeniche.com/celeiro" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/celeirocafe" target="_blank" style="color:#e1306c;text-decoration:none">@celeirocafe</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.498</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">863</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262782022" target="_blank" style="color:#25d366;text-decoration:none">+351 262782022</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">63</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Bica da Lagoa" data-handle="@landmanvs" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(24)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Bica da Lagoa <a href="https://www.facebook.com/pages/Bica-da-Lagoa/365100020356741" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/landmanvs" target="_blank" style="color:#e1306c;text-decoration:none">@landmanvs</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">256</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.095</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.3</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351966942016" target="_blank" style="color:#25d366;text-decoration:none">+351 966942016</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">62</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Cantinho do Bolha" data-handle="@cantinhodobolha" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(25)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Cantinho do Bolha <a href="https://www.facebook.com/Cantinho-do-Bolha-1914635188846553/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/cantinhodobolha" target="_blank" style="color:#e1306c;text-decoration:none">@cantinhodobolha</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">767</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">578</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.7</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351911188344" target="_blank" style="color:#25d366;text-decoration:none">+351 911188344</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">62</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="A Lareira" data-handle="@nunorolinho" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(26)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> A Lareira <a href="http://www.restaurantealareira.com/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/nunorolinho" target="_blank" style="color:#e1306c;text-decoration:none">@nunorolinho</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">696</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.225</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.4</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262823432" target="_blank" style="color:#25d366;text-decoration:none">+351 262823432</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">62</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="O Pedro" data-handle="@restaurante_opedro" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(27)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> O Pedro <a href="nan" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/restaurante_opedro" target="_blank" style="color:#e1306c;text-decoration:none">@restaurante_opedro</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">946</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">2.619</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.1</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262785626" target="_blank" style="color:#25d366;text-decoration:none">+351 262785626</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">62</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Capinha d&#x27;Óbidos" data-handle="@kiimik0" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(28)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Capinha d&#x27;Óbidos <a href="nan" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/kiimik0" target="_blank" style="color:#e1306c;text-decoration:none">@kiimik0</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">564</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.063</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.4</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262958034" target="_blank" style="color:#25d366;text-decoration:none">+351 262958034</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">61</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Onda Azul" data-handle="@onda.azul38" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(29)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Onda Azul <a href="https://restauranteondaazul.web1.pt/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/onda.azul38" target="_blank" style="color:#e1306c;text-decoration:none">@onda.azul38</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">263</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">865</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.4</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262787224" target="_blank" style="color:#25d366;text-decoration:none">+351 262787224</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">60</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="oS aMericanO&#x27;s" data-handle="@os.americanos" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(30)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> oS aMericanO&#x27;s <a href="https://m.facebook.com/osamericanosrestaurant/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/os.americanos" target="_blank" style="color:#e1306c;text-decoration:none">@os.americanos</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">471</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">547</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.7</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262789046" target="_blank" style="color:#25d366;text-decoration:none">+351 262789046</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">60</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Restaurante Mãe d&#x27;Água" data-handle="@mae_d_agua_n44" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(31)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Restaurante Mãe d&#x27;Água <a href="nan" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/mae_d_agua_n44" target="_blank" style="color:#e1306c;text-decoration:none">@mae_d_agua_n44</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">25</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.458</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262605408" target="_blank" style="color:#25d366;text-decoration:none">+351 262605408</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">52</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Europa" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(32)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Europa <a href="nan" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">769</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351910404122" target="_blank" style="color:#25d366;text-decoration:none">+351 910404122</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">40</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Restaurante Forno do Avô" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(33)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Restaurante Forno do Avô <a href="http://www.fornodoavo.com/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.759</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262605552" target="_blank" style="color:#25d366;text-decoration:none">+351 262605552</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">40</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Poço dos Sabores" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(34)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Poço dos Sabores <a href="nan" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.170</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.6</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351928047744" target="_blank" style="color:#25d366;text-decoration:none">+351 928047744</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">40</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Cantinho Saloio" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(35)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Cantinho Saloio <a href="nan" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">792</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262769744" target="_blank" style="color:#25d366;text-decoration:none">+351 262769744</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">40</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Dinossauro Vestigium" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(36)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Dinossauro Vestigium <a href="https://www.instagram.com/restaurantevestigium?igsh=MWwza3RjanE5cGRrcA==" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">875</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.6</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351916279401" target="_blank" style="color:#25d366;text-decoration:none">+351 916279401</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">40</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Restaurante Merkado" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(37)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Restaurante Merkado <a href="https://www.merkadorestaurante.com/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.291</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351925576883" target="_blank" style="color:#25d366;text-decoration:none">+351 925576883</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">40</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Restaurante O Melro" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(38)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Restaurante O Melro <a href="http://www.omelro-petiscos.pt/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.337</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262958083" target="_blank" style="color:#25d366;text-decoration:none">+351 262958083</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">40</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Paneólio Pizza Bar" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(39)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Paneólio Pizza Bar <a href="https://www.instagram.com/paneolio_pizzabar_" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">566</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.6</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351926720994" target="_blank" style="color:#25d366;text-decoration:none">+351 926720994</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">40</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Winebar Sabores &amp; peripécias" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(40)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Winebar Sabores &amp; peripécias <a href="https://saboreseperipecias.com/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">440</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.9</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262781294" target="_blank" style="color:#25d366;text-decoration:none">+351 262781294</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">39</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Adega do Ramada" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(41)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Adega do Ramada <a href="https://www.facebook.com/share/1Gf7kjC6rn/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">914</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.4</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262067208" target="_blank" style="color:#25d366;text-decoration:none">+351 262067208</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">37</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Cabana do Pescador - Foz do Arelho" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(42)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Cabana do Pescador - Foz do Arelho <a href="https://cabanadopescador.com/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.259</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.2</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262979451" target="_blank" style="color:#25d366;text-decoration:none">+351 262979451</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">37</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Petrarum Domus Restaurante" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(43)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Petrarum Domus Restaurante <a href="http://www.petrarumdomus.com/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.477</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.1</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262959620" target="_blank" style="color:#25d366;text-decoration:none">+351 262959620</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">37</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Senhor da Pedra" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(44)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Senhor da Pedra <a href="nan" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">942</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.4</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262959315" target="_blank" style="color:#25d366;text-decoration:none">+351 262959315</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">37</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Cafetaria Puro Cake Lab" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(45)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Cafetaria Puro Cake Lab <a href="https://www.facebook.com/puro.cakelab" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.128</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.4</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351916950480" target="_blank" style="color:#25d366;text-decoration:none">+351 916950480</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">37</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Sol é Vida - Snack Bar" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(46)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Sol é Vida - Snack Bar <a href="https://www.instagram.com/sol.e.vida_restaurante?igsh=MTllNmgwanoxdWZjMA%3D%3D&amp;utm_source=qr" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.651</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.4</td>
+      <td style="padding:10px 8px;font-size:12px">—</td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">37</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="O Covão dos Musaranhos" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(47)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> O Covão dos Musaranhos <a href="nan" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.411</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.1</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262969930" target="_blank" style="color:#25d366;text-decoration:none">+351 262969930</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">37</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Cais da Praia . Beach Restaurant - Cocktail Bar . Foz do Arelho" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(48)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Cais da Praia . Beach Restaurant - Cocktail Bar . Foz do Arelho <a href="https://www.caisdapraia.com/" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">2.841</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">4.3</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351966528533" target="_blank" style="color:#25d366;text-decoration:none">+351 966528533</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">37</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr><tr class="row" data-name="Miramar" data-handle="nan" data-status="Cold" data-ig="yes" data-ta="no" onclick="openModal(49)" style="cursor:pointer">
+      <td style="padding:10px 8px;font-size:13px;font-weight:500"> Miramar <a href="nan" target="_blank" style="color:#3b82f6;text-decoration:none">↗</a></td>
+      <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:right">1.847</td>
+      <td style="padding:10px 8px;font-size:12px;text-align:center">3.9</td>
+      <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351963611102" target="_blank" style="color:#25d366;text-decoration:none">+351 963611102</a></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">33</span></td>
+      <td style="padding:10px 8px;text-align:center"><span style="background:#eff6ff;color:#3b82f6;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+    </tr></tbody>
+</table>
+</div>
+
+<div class="modal-bg" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-box">
+    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">×</button>
+    <h2 id="m-name"></h2>
+    <div id="m-rows"></div>
+    <div class="modal-bio" id="m-bio" style="display:none"></div>
+    <div class="modal-status">
+      <select id="m-status" onchange="updateStatus()">
+        <option>Cold</option><option>Contacted</option><option>Interested</option><option>Client</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<script>
+var DATA = [{"Business Name": "MASTER'S BURGER", "Category": "Hamburgueria", "Address": "R. das Escolas 6, 2520-131 Ferrel, Portugal", "Rating": 4.6, "# Reviews": 604, "Phone": "+351 262091426", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=MASTER'S%20BURGER&query_place_id=ChIJI_W3m9NOHw0RYiNtiOYvjrA", "Takeaway Signal": true, "Order Online": true, "Menu URL": null, "Instagram Handle": "@mastersburgerferrel", "Instagram URL": "https://instagram.com/mastersburgerferrel", "Seguidores": 271.0, "Posts": 19.0, "Bio": "Hamb\u00fargueres artesanais \ud83c\udf54| Handmade Burgers \ud83c\udf54\n\u23f0 Todos os dias das 12h \u00e0s 16h e das 19h \u00e0s 22h15min | Open everyday \n\ud83d\udccdFerrel", "Score AI Potencial": 83, "Status Lead": "Cold"}, {"Business Name": "Maharani Peniche", "Category": "Restaurante indiano", "Address": "Travessa da Lingueta, Av. do Mar 4, 2520-326 Peniche, Portugal", "Rating": 4.5, "# Reviews": 867, "Phone": "+351 262781268", "Website": "https://maharanipeniche.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Maharani%20Peniche&query_place_id=ChIJSdgxnOJFHw0RV6wf8FL1-pE", "Takeaway Signal": true, "Order Online": true, "Menu URL": "https://maharanipeniche.pt/menu/", "Instagram Handle": "@maharanipeniche", "Instagram URL": "https://instagram.com/maharanipeniche", "Seguidores": 134.0, "Posts": 51.0, "Bio": "Comida tradicional indiana \ud83d\udccd Peniche \nTravessa da Lingueta 4, Avenida do mar\nTAKE AWAY \ud83d\udcde 262 781 268, 910323536", "Score AI Potencial": 83, "Status Lead": "Cold"}, {"Business Name": "Foz Restaurante", "Category": "Restaurante", "Address": "Passeio do Mar, 2530-240 Lourinh\u00e3, Portugal", "Rating": 4.5, "# Reviews": 1855, "Phone": "+351 261469348", "Website": "https://www.facebook.com/FozRestaurante/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Foz%20Restaurante&query_place_id=ChIJIXOvD8U3Hw0RZtVCrLhDtyg", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@trufasdecebolada", "Instagram URL": "https://instagram.com/trufasdecebolada", "Seguidores": 10438.0, "Posts": 284.0, "Bio": "Das mesas de luxo aos balc\u00f5es das tascas\n\ud83d\udccdPorto, PT\n\ud83d\udce9 trufasdecebolada@gmail.com\n@ruispereira e @teresacastroviana", "Score AI Potencial": 75, "Status Lead": "Cold"}, {"Business Name": "Toca do Texugo", "Category": "Restaurante", "Address": "Caminho do outeiro, Estr. Marginal Norte, 2520-217 Peniche, Portugal", "Rating": 4.6, "# Reviews": 1223, "Phone": "+351 262783852", "Website": "https://vix360.com.br/tocadotexugo", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Toca%20do%20Texugo&query_place_id=ChIJ8dYyci9FHw0RnVMzsO16nwg", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@dastascascoracao", "Instagram URL": "https://instagram.com/dastascascoracao", "Seguidores": 29870.0, "Posts": 264.0, "Bio": "Do Snack bar ao Fine Dining! Aqui ficam as refei\u00e7\u00f5es e petiscos de dois Bon Vivants!\ud83d\udd2a", "Score AI Potencial": 75, "Status Lead": "Cold"}, {"Business Name": "Taberna do Ganh\u00e3o", "Category": "Restaurante portugu\u00eas", "Address": "Largo dos Amigos do Baleal 1, 2520-001 Peniche, Portugal", "Rating": 4.7, "# Reviews": 2708, "Phone": null, "Website": "http://www.facebook.com/Taberna-do-Ganh%C3%A3o-417150245123783/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Taberna%20do%20Ganh%C3%A3o&query_place_id=ChIJDeAmUDlPHw0RCdFvgs3h-rk", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@taberna_do_ganhao", "Instagram URL": "https://instagram.com/taberna_do_ganhao", "Seguidores": 4260.0, "Posts": 300.0, "Bio": "\u23f012:30h-22h | Sunday is our day off\n\ud83d\udcfd\ufe0fNO RESERVATIONS , just walk in\n\ud83c\udfaftaberna.do.ganhao@gmail.com", "Score AI Potencial": 74, "Status Lead": "Cold"}, {"Business Name": "Xakra Beach Bar", "Category": "Petiscaria", "Address": "Praia do Molhe Leste, 2520-000 Peniche, Portugal", "Rating": 4.6, "# Reviews": 2742, "Phone": "+351 965172166", "Website": "https://xakrabeachbar.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Xakra%20Beach%20Bar&query_place_id=ChIJq-d9xalIHw0RUZkSjZ8AKZk", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@xakrabeachbar", "Instagram URL": "https://instagram.com/xakrabeachbar", "Seguidores": 3904.0, "Posts": 284.0, "Bio": "Wine bar, food, beach, good vibe\nPraia do Molhe Leste - Peniche", "Score AI Potencial": 74, "Status Lead": "Cold"}, {"Business Name": "A Nova Casa de Ramiro", "Category": "Restaurante portugu\u00eas", "Address": "R. Porta do Vale 12, 2510-053 \u00d3bidos, Portugal", "Rating": 4.6, "# Reviews": 1139, "Phone": "+351 967265945", "Website": "http://anovacasaderamiro.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=A%20Nova%20Casa%20de%20Ramiro&query_place_id=ChIJDZu0xI-0GA0RgSgP0OgFCEU", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@thiagoassistv", "Instagram URL": "https://instagram.com/thiagoassistv", "Seguidores": 1713.0, "Posts": 292.0, "Bio": "Brasileiro no exterior +-10 anos \ud83c\udf0d\nMoro em Portugal e invisto no Brasil \ud83c\udde7\ud83c\uddf7\nInvestimentos \u2022 Patrim\u00f4nio \u2022 Im\u00f3veis\nCEO | @casalbuscape @buscavoosviagens", "Score AI Potencial": 72, "Status Lead": "Cold"}, {"Business Name": "Profresco Peixaria & Restaurante", "Category": "Peixaria", "Address": "Estr. Marginal Norte, 2520-605 Peniche, Portugal", "Rating": 4.3, "# Reviews": 3606, "Phone": "+351 262785186", "Website": "http://www.profresco.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Profresco%20Peixaria%20%26%20Restaurante&query_place_id=ChIJXWhHCulFHw0RvTvC3nvbGfA", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@profresco", "Instagram URL": "https://instagram.com/profresco", "Seguidores": 19312.0, "Posts": 923.0, "Bio": "Desde 1994, do mar para a sua mesa\ud83d\udc20 \nPeixaria e restaurante em Peniche!\ud83d\udc1f\ud83d\udc69\ud83c\udffc\u200d\ud83c\udf73\nRESERVAS - 262 785 186", "Score AI Potencial": 72, "Status Lead": "Cold"}, {"Business Name": "Tribeca", "Category": "Restaurante", "Address": "Av. Serrana 5, 2525-801 Serra d' El-Rei, Portugal", "Rating": 4.5, "# Reviews": 898, "Phone": "+351 262909461", "Website": "http://www.tribeca-restaurante.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Tribeca&query_place_id=ChIJ1wEm8NBLHw0RtzskfkzhFEs", "Takeaway Signal": false, "Order Online": false, "Menu URL": "https://www.tribeca-restaurante.com/menus.html", "Instagram Handle": "@tribecapt", "Instagram URL": "https://instagram.com/tribecapt", "Seguidores": 1264.0, "Posts": 473.0, "Bio": "\ud83c\uddf5\ud83c\uddf9Restaurante descontra\u00eddo e acolhedor onde o d\u00e9cor, a m\u00fasica e a comida v\u00e3o par e passo. \n\ud83c\uddec\ud83c\udde7A restaurant where d\u00e9cor, music and food go hand in hand.", "Score AI Potencial": 71, "Status Lead": "Cold"}, {"Business Name": "O Tra\u00e7adinho", "Category": "Restaurante", "Address": "Estr. da Capeleira n\u00ba44, 2510-018 \u00d3bidos, Portugal", "Rating": 4.6, "# Reviews": 662, "Phone": "+351 262959489", "Website": "https://tracadinho.restaurantesdeobidos.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=O%20Tra%C3%A7adinho&query_place_id=ChIJW9AAX_a0GA0RRhlJBK41u0w", "Takeaway Signal": false, "Order Online": false, "Menu URL": "https://tracadinho.restaurantesdeobidos.com/ementas/", "Instagram Handle": "@300diasnooeste", "Instagram URL": "https://instagram.com/300diasnooeste", "Seguidores": 753.0, "Posts": 736.0, "Bio": "Viagem e Aventura pelo Oeste de Portugal. #comboio #bicicleta Por Tom\u00e9 Gouveia", "Score AI Potencial": 70, "Status Lead": "Cold"}, {"Business Name": "Restaurante Taberna Dos Almocreves", "Category": "Restaurante", "Address": "Tv. dos Almocreves 11, 2520-104 Ferrel, Portugal", "Rating": 4.7, "# Reviews": 684, "Phone": "+351 262709209", "Website": "https://tabernadosalmocreves.web1.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Restaurante%20Taberna%20Dos%20Almocreves&query_place_id=ChIJvU_AvdNOHw0Rm50XmKbhxDA", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@tabernadosalmocreves", "Instagram URL": "https://instagram.com/tabernadosalmocreves", "Seguidores": 2337.0, "Posts": 153.0, "Bio": "O Restaurante Taberna dos Almocreves est\u00e1 aberto  todos os dias,(excepto quintas feiras ,)  apartir 18h30 . Visite-nos!\ud83d\ude18", "Score AI Potencial": 70, "Status Lead": "Cold"}, {"Business Name": "Abrigo do Pescador", "Category": "Restaurante", "Address": "Largo da Ribeira n 30, 2520-619 Peniche, Portugal", "Rating": 4.2, "# Reviews": 1502, "Phone": "+351 933267453", "Website": "https://abrigodopescador.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Abrigo%20do%20Pescador&query_place_id=ChIJl43lY-JFHw0RQJH7e1knxPc", "Takeaway Signal": false, "Order Online": false, "Menu URL": "https://abrigodopescador.pt/wp-content/uploads/2025/09/MENU_PT.pdf", "Instagram Handle": "@abrigodopescador", "Instagram URL": "https://instagram.com/abrigodopescador", "Seguidores": 3318.0, "Posts": 169.0, "Bio": "\ud83c\udf0a\ud83c\udf74 Frescura & tradi\u00e7\u00e3o h\u00e1 + de 30 anos em Peniche\n\ud83e\udd9e Marisco vivo | \ud83d\udc1f Peixe fresco | \ud83e\udd69 Carnes premium no carv\u00e3o\n\ud83d\udcf2 Reservas: +351 933 267 453", "Score AI Potencial": 69, "Status Lead": "Cold"}, {"Business Name": "Tasca do Joel", "Category": "Restaurante", "Address": "R. do Lapadusso 73, 2520-370 Peniche, Portugal", "Rating": 4.5, "# Reviews": 3744, "Phone": "+351 262782945", "Website": "https://www.tascadojoel.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Tasca%20do%20Joel&query_place_id=ChIJ6RzOAt9FHw0R8GKugo2l-ZY", "Takeaway Signal": false, "Order Online": false, "Menu URL": "https://www.tascadojoel.pt/_files/ugd/83803d_5838efea129e4cf1a311603f09100a26.pdf", "Instagram Handle": "@tascadojoel", "Instagram URL": "https://instagram.com/tascadojoel", "Seguidores": 9756.0, "Posts": 86.0, "Bio": "A Hist\u00f3ria da\" Tasca do Joel\" inicia-se em 1982", "Score AI Potencial": 69, "Status Lead": "Cold"}, {"Business Name": "Ricl\u00e9 Bar", "Category": "Bar", "Address": "R. da Paz 14, 2520-128 Ferrel, Portugal", "Rating": 4.7, "# Reviews": 655, "Phone": "+351 262769103", "Website": "https://www.riclebar.pt/en", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Ricl%C3%A9%20Bar&query_place_id=ChIJRaqvlNNOHw0R9MkK2UTfm60", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@riclebar", "Instagram URL": "https://instagram.com/riclebar", "Seguidores": 4597.0, "Posts": 84.0, "Bio": "Vem aproveitar os melhores momentos e deliciosa comida ao Ricl\u00e9! \ud83c\udf54 (Chamadas para rede fixa nacional) Tel: 262769103", "Score AI Potencial": 68, "Status Lead": "Cold"}, {"Business Name": "Dom Jos\u00e9", "Category": "Restaurante portugu\u00eas", "Address": "Rua Dr Alberto Martins dos Santos 4, 2540-087 Bombarral, Portugal", "Rating": 4.8, "# Reviews": 1019, "Phone": "+351 262604384", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Dom%20Jos%C3%A9&query_place_id=ChIJfY742fHKGA0RkJkG0Eyvk10", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@domjosebarbershop", "Instagram URL": "https://instagram.com/domjosebarbershop", "Seguidores": 649.0, "Posts": 151.0, "Bio": "\u2b51 Elevo sua imagem e estilo com servi\u00e7o de excel\u00eancia\n\u2b51 Rua Dr. Leonel Sotto Mayor; n\u00b020\nCaldas da Rainha\ud83c\uddf5\ud83c\uddf9\ud83c\udde7\ud83c\uddf7\n\u2b51Clique aqui para agendar \u21b4", "Score AI Potencial": 67, "Status Lead": "Cold"}, {"Business Name": "Marginal", "Category": "Restaurante", "Address": "Estr. Marginal Norte, 2520-605 Peniche, Portugal", "Rating": 4.8, "# Reviews": 572, "Phone": "+351 968907248", "Website": "https://instagram.com/marginalrestaurante_peniche", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Marginal&query_place_id=ChIJl_buRJpFHw0R1zwiEOdvupY", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@marginalrestaurante_peniche", "Instagram URL": "https://instagram.com/marginalrestaurante_peniche", "Seguidores": 2644.0, "Posts": 88.0, "Bio": "Aceitamos reservas 968907248 \ud83d\udcf2", "Score AI Potencial": 67, "Status Lead": "Cold"}, {"Business Name": "Rocha", "Category": "Restaurante", "Address": "Largo da Ribeira n 21, 2520-205 Peniche, Portugal", "Rating": 4.4, "# Reviews": 1208, "Phone": "+351 262782147", "Website": "https://www.tripadvisor.pt/Restaurant_Review-g608952-d8299191-Reviews-Restaurante_Rocha-Peniche_Leiria_District_Central_Portugal.html", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Rocha&query_place_id=ChIJWV_MCAhGHw0Rub11m9yPOOI", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@rest.rocha", "Instagram URL": "https://instagram.com/rest.rocha", "Seguidores": 617.0, "Posts": 219.0, "Bio": "\u260e\ufe0f Reservas\n262 782 147 \n963 100 529\n\ud83d\udce9 restaurante-rocha@hotmail.com", "Score AI Potencial": 67, "Status Lead": "Cold"}, {"Business Name": "Restaurante D Raiz", "Category": "Restaurante", "Address": "R. Marqu\u00eas de Pombal 120, 2520-294 Peniche, Portugal", "Rating": 4.7, "# Reviews": 926, "Phone": "+351 918590462", "Website": "https://linktr.ee/draizrestaurante", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Restaurante%20D%20Raiz&query_place_id=ChIJK0XyMLxFHw0RJBv2kDwM6Y8", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@alexandrepereirada74", "Instagram URL": "https://instagram.com/alexandrepereirada74", "Seguidores": 700.0, "Posts": 134.0, "Bio": null, "Score AI Potencial": 66, "Status Lead": "Cold"}, {"Business Name": "Areal Beach Bar by Chakall", "Category": "Restaurante", "Address": "Areal Sul, Estr. do Areal 70 Praia do, 2530-065 Lourinh\u00e3, Portugal", "Rating": 4.5, "# Reviews": 1345, "Phone": "+351 962690200", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Areal%20Beach%20Bar%20by%20Chakall&query_place_id=ChIJichI9ak3Hw0R4uai_TVc2II", "Takeaway Signal": true, "Order Online": true, "Menu URL": "https://www.arealbeachbychakall.com/menu", "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 65, "Status Lead": "Cold"}, {"Business Name": "Cervejaria O Litro", "Category": "Bar de cervejas", "Address": "R. P\u00earo Vaz de Caminha 23, 2500-852 Caldas da Rainha, Portugal", "Rating": 4.5, "# Reviews": 1271, "Phone": "+351 262406733", "Website": "https://grupolitro.com/cervejaria-o-litro/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Cervejaria%20O%20Litro&query_place_id=ChIJk66XmgCzGA0RsCrDxdUOhPI", "Takeaway Signal": true, "Order Online": true, "Menu URL": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 65, "Status Lead": "Cold"}, {"Business Name": "Restaurante Italiano O Outro", "Category": "Restaurante", "Address": "R. Dom Lu\u00eds de Ata\u00edde 4, 2520-408 Peniche, Portugal", "Rating": 4.5, "# Reviews": 1246, "Phone": "+351 965236147", "Website": "https://www.facebook.com/RestauranteItalianoOOutro/?locale=pt_PT", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Restaurante%20Italiano%20O%20Outro&query_place_id=ChIJuwQVr-RFHw0R9l-MKwjWPaU", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@ooutro5", "Instagram URL": "https://instagram.com/ooutro5", "Seguidores": 1097.0, "Posts": 82.0, "Bio": null, "Score AI Potencial": 65, "Status Lead": "Cold"}, {"Business Name": "S. Pedro Peniche", "Category": "Restaurante portugu\u00eas", "Address": "R. Jos\u00e9 Estev\u00e3o 97, 2520-467 Peniche, Portugal", "Rating": 4.5, "# Reviews": 785, "Phone": "+351 917862901", "Website": "https://www.facebook.com/pg/s.pedro85", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=S.%20Pedro%20Peniche&query_place_id=ChIJW2JPGghGHw0Rgnp4N-Pm0jI", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@ps_peniche", "Instagram URL": "https://instagram.com/ps_peniche", "Seguidores": 415.0, "Posts": 128.0, "Bio": null, "Score AI Potencial": 65, "Status Lead": "Cold"}, {"Business Name": "Oficina do Hamb\u00farguer", "Category": "Restaurante", "Address": "Tv. dos Rem\u00e9dios, 2520-543 Peniche, Portugal", "Rating": 4.4, "# Reviews": 874, "Phone": "+351 262104782", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Oficina%20do%20Hamb%C3%BArguer&query_place_id=ChIJK8FZLFJFHw0R4ZrLg-2x7o0", "Takeaway Signal": false, "Order Online": false, "Menu URL": "https://www.facebook.com/oficinadohamburguer2019/menu/?id=100063168222517&sk=menu", "Instagram Handle": "@oficinadohamburguer_peniche", "Instagram URL": "https://instagram.com/oficinadohamburguer_peniche", "Seguidores": 1286.0, "Posts": 131.0, "Bio": "\ud83d\udccdHamburgueria artesanal no centro de Peniche\n\ud83e\uddc2 Ingredientes frescos & sabores aut\u00eanticos\n\ud83d\udef5 Entregas ao domicilio", "Score AI Potencial": 64, "Status Lead": "Cold"}, {"Business Name": "Celeiro Caf\u00e9", "Category": "Caf\u00e9", "Address": "Largo Bpo. de Mariana n\u00ba8, 2520-229 Peniche, Portugal", "Rating": 4.5, "# Reviews": 863, "Phone": "+351 262782022", "Website": "https://www.casadocampopeniche.com/celeiro", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Celeiro%20Caf%C3%A9&query_place_id=ChIJIetuD-NFHw0RWRg2tX6tL94", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@celeirocafe", "Instagram URL": "https://instagram.com/celeirocafe", "Seguidores": 1498.0, "Posts": 34.0, "Bio": null, "Score AI Potencial": 63, "Status Lead": "Cold"}, {"Business Name": "Bica da Lagoa", "Category": "Restaurante", "Address": "EM573 6, Distrito de Leiria, Portugal", "Rating": 4.3, "# Reviews": 1095, "Phone": "+351 966942016", "Website": "https://www.facebook.com/pages/Bica-da-Lagoa/365100020356741", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Bica%20da%20Lagoa&query_place_id=ChIJBxtAJglNHw0R2yiykKeuOio", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@landmanvs", "Instagram URL": "https://instagram.com/landmanvs", "Seguidores": 256.0, "Posts": 158.0, "Bio": "Living in Portugal \u2026phew\ud83d\ude05", "Score AI Potencial": 62, "Status Lead": "Cold"}, {"Business Name": "Cantinho do Bolha", "Category": "Restaurante", "Address": "R. Dom Lu\u00eds de Ata\u00edde 22, 2520-408 Peniche, Portugal", "Rating": 4.7, "# Reviews": 578, "Phone": "+351 911188344", "Website": "https://www.facebook.com/Cantinho-do-Bolha-1914635188846553/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Cantinho%20do%20Bolha&query_place_id=ChIJmxs6qORFHw0R32fKeM_Vmvw", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@cantinhodobolha", "Instagram URL": "https://instagram.com/cantinhodobolha", "Seguidores": 767.0, "Posts": 58.0, "Bio": "#Tapas#Petiscos\n#CantinhodoBolha#Peniche\nHor\u00e1rio segunda a s\u00e1bado 12.00 \u00e0s 14.30h\n19.00h \u00e0s 21.30h \nCom Servi\u00e7o Take Away \nDomingo fechado", "Score AI Potencial": 62, "Status Lead": "Cold"}, {"Business Name": "A Lareira", "Category": "Restaurante", "Address": "Rua da Lareira, n.\u00ba 35, Alto do Nobre, 2500-593 Nadadouro, Portugal", "Rating": 4.4, "# Reviews": 1225, "Phone": "+351 262823432", "Website": "http://www.restaurantealareira.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=A%20Lareira&query_place_id=ChIJMxI9_cKyGA0RUdQN6u-kvvo", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@nunorolinho", "Instagram URL": "https://instagram.com/nunorolinho", "Seguidores": 696.0, "Posts": 114.0, "Bio": "\ud83d\udcf7 photographer @hexafoto #hexafoto", "Score AI Potencial": 62, "Status Lead": "Cold"}, {"Business Name": "O Pedro", "Category": "Restaurante de frutos do mar", "Address": "Av. do Mar 26, 2520-205 Peniche, Portugal", "Rating": 4.1, "# Reviews": 2619, "Phone": "+351 262785626", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=O%20Pedro&query_place_id=ChIJJUUTreJFHw0Rtug8GydiYdg", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@restaurante_opedro", "Instagram URL": "https://instagram.com/restaurante_opedro", "Seguidores": 946.0, "Posts": 82.0, "Bio": "Destacamo-nos pelo \n\u2022 Peixe fresco \ud83d\udc1f, \n\u2022 Marisco fresco\ud83e\udd9e \n\u2022 Carne Maturada \ud83e\udd69\n\u260e\ufe0f 262 785 626", "Score AI Potencial": 62, "Status Lead": "Cold"}, {"Business Name": "Capinha d'\u00d3bidos", "Category": "Padaria", "Address": "R. Direita 105, 2510-089 \u00d3bidos, Portugal", "Rating": 4.4, "# Reviews": 1063, "Phone": "+351 262958034", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Capinha%20d'%C3%93bidos&query_place_id=ChIJ0e8mGJC0GA0Rwywpj9PIBIA", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@kiimik0", "Instagram URL": "https://instagram.com/kiimik0", "Seguidores": 564.0, "Posts": 104.0, "Bio": "\ud83e\udd7e. \ud83c\udf3f.", "Score AI Potencial": 61, "Status Lead": "Cold"}, {"Business Name": "Onda Azul", "Category": "Restaurante", "Address": "Av. do Mar 38, 2520-326 Peniche, Portugal", "Rating": 4.4, "# Reviews": 865, "Phone": "+351 262787224", "Website": "https://restauranteondaazul.web1.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Onda%20Azul&query_place_id=ChIJn4glcQhGHw0RWhrpb5WV07c", "Takeaway Signal": false, "Order Online": false, "Menu URL": "https://restauranteondaazul.web1.pt/#menu", "Instagram Handle": "@onda.azul38", "Instagram URL": "https://instagram.com/onda.azul38", "Seguidores": 263.0, "Posts": 117.0, "Bio": "Restaurante localizado no cora\u00e7\u00e3o  de peniche,onde pode aprovar as nossas massas e entradas,onde as espetadas s\u00e3o rainhas e as sobremas caseiras \ud83d\udc4c", "Score AI Potencial": 60, "Status Lead": "Cold"}, {"Business Name": "oS aMericanO's", "Category": "Bar de vinhos", "Address": "R. Jos\u00e9 Estev\u00e3o 29 31, 2520-465 Peniche, Portugal", "Rating": 4.7, "# Reviews": 547, "Phone": "+351 262789046", "Website": "https://m.facebook.com/osamericanosrestaurant/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=oS%20aMericanO's&query_place_id=ChIJcb3tsOJFHw0RyIVKl1kVv7s", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@os.americanos", "Instagram URL": "https://instagram.com/os.americanos", "Seguidores": 471.0, "Posts": 38.0, "Bio": "\u260e\ufe0f (+351) 262 789 046\n\ud83c\udfe0Rua Jos\u00e9 Estev\u00e3o n\u00ba29-31\n     2520-456 Peniche, Portugal", "Score AI Potencial": 60, "Status Lead": "Cold"}, {"Business Name": "Restaurante M\u00e3e d'\u00c1gua", "Category": "Restaurante", "Address": "R. 13 de Maio 26, 2540-467 Carvalhal, Portugal", "Rating": 4.5, "# Reviews": 1458, "Phone": "+351 262605408", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Restaurante%20M%C3%A3e%20d'%C3%81gua&query_place_id=ChIJJ9PG7XbKGA0Rux5xJqx1oIM", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": "@mae_d_agua_n44", "Instagram URL": "https://instagram.com/mae_d_agua_n44", "Seguidores": 25.0, "Posts": 8.0, "Bio": "ABERTO\nligue para 214314582 para fazer o seu pedido\nServimos carne ou peixe grelhado no carv\u00e3o", "Score AI Potencial": 52, "Status Lead": "Cold"}, {"Business Name": "Europa", "Category": "Restaurante", "Address": "Av. do Mar 13, 2500-896 Foz do Arelho, Portugal", "Rating": 4.5, "# Reviews": 769, "Phone": "+351 910404122", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Europa&query_place_id=ChIJF8jZ7HNNHw0RQU9il34y6wg", "Takeaway Signal": false, "Order Online": false, "Menu URL": "http://restauranteeuropa.pt/wp-content/uploads/2020/06/Ementa.pdf", "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 40, "Status Lead": "Cold"}, {"Business Name": "Restaurante Forno do Av\u00f4", "Category": "Restaurante", "Address": "Av. Inoc\u00eancia Cairel Sim\u00e3o, 2540-129 Bombarral, Portugal", "Rating": 4.5, "# Reviews": 1759, "Phone": "+351 262605552", "Website": "http://www.fornodoavo.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Restaurante%20Forno%20do%20Av%C3%B4&query_place_id=ChIJD8qqdO3KGA0R_yAg8yPgqHo", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 40, "Status Lead": "Cold"}, {"Business Name": "Po\u00e7o dos Sabores", "Category": "Restaurante", "Address": "R. Principal 85 B, 2510-772 Usseira, Portugal", "Rating": 4.6, "# Reviews": 1170, "Phone": "+351 928047744", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Po%C3%A7o%20dos%20Sabores&query_place_id=ChIJE71RQR21GA0R5dDvvsEd-Fc", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 40, "Status Lead": "Cold"}, {"Business Name": "Cantinho Saloio", "Category": "Restaurante", "Address": "R. do Clemente 1, 2520-143 Ferrel, Portugal", "Rating": 4.5, "# Reviews": 792, "Phone": "+351 262769744", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Cantinho%20Saloio&query_place_id=ChIJf249ptNOHw0RF5uswSrn6-w", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 40, "Status Lead": "Cold"}, {"Business Name": "Dinossauro Vestigium", "Category": "Restaurante", "Address": "N247-1 15, 2550-694 S\u00e3o Bartolomeu de Galegos, Portugal", "Rating": 4.6, "# Reviews": 875, "Phone": "+351 916279401", "Website": "https://www.instagram.com/restaurantevestigium?igsh=MWwza3RjanE5cGRrcA==", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Dinossauro%20Vestigium&query_place_id=ChIJj-IWKq81Hw0RnM-I5Ur4sQY", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 40, "Status Lead": "Cold"}, {"Business Name": "Restaurante Merkado", "Category": "Restaurante", "Address": "Bom sucesso - Lagoa de, EM573 3, \u00d3bidos Aldeia dos Pescadores Praia do Bom Sucesso, 2510-661 \u00d3bidos, Portugal", "Rating": 4.5, "# Reviews": 1291, "Phone": "+351 925576883", "Website": "https://www.merkadorestaurante.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Restaurante%20Merkado&query_place_id=ChIJO1hVGScpGQ0RVaoYKNwxDKY", "Takeaway Signal": false, "Order Online": false, "Menu URL": "https://www.merkadorestaurante.com/menus", "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 40, "Status Lead": "Cold"}, {"Business Name": "Restaurante O Melro", "Category": "Restaurante", "Address": "R. do Com\u00e9rcio 22, 2510-055 \u00d3bidos, Portugal", "Rating": 4.5, "# Reviews": 1337, "Phone": "+351 262958083", "Website": "http://www.omelro-petiscos.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Restaurante%20O%20Melro&query_place_id=ChIJtSxPyXGzGA0RxUIJXIRhmoY", "Takeaway Signal": false, "Order Online": false, "Menu URL": "http://www.omelro-petiscos.pt/files/modulos/4/59aeb9dba8bd8.pdf", "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 40, "Status Lead": "Cold"}, {"Business Name": "Pane\u00f3lio Pizza Bar", "Category": "Pizzaria", "Address": "R. Dom Jo\u00e3o II 47 B, 2500-852 Caldas da Rainha, Portugal", "Rating": 4.6, "# Reviews": 566, "Phone": "+351 926720994", "Website": "https://www.instagram.com/paneolio_pizzabar_", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Pane%C3%B3lio%20Pizza%20Bar&query_place_id=ChIJl6OczW2zGA0RAjEQqHVCyk4", "Takeaway Signal": false, "Order Online": false, "Menu URL": "https://www.facebook.com/federicagasparrini.beniaminobilali/photos/p.133549055994836/133549055994836/?type=3", "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 40, "Status Lead": "Cold"}, {"Business Name": "Winebar Sabores & perip\u00e9cias", "Category": "Petiscaria", "Address": "R. Jos\u00e9 Estev\u00e3o 8, 2520-466 Peniche, Portugal", "Rating": 4.9, "# Reviews": 440, "Phone": "+351 262781294", "Website": "https://saboreseperipecias.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Winebar%20Sabores%20%26%20perip%C3%A9cias&query_place_id=ChIJuUYOy65FHw0RUHHs5b1DYxU", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 39, "Status Lead": "Cold"}, {"Business Name": "Adega do Ramada", "Category": "Restaurante", "Address": "Tv. Nossa Sra. do Rosario 3, 2510-092 \u00d3bidos, Portugal", "Rating": 4.4, "# Reviews": 914, "Phone": "+351 262067208", "Website": "https://www.facebook.com/share/1Gf7kjC6rn/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Adega%20do%20Ramada&query_place_id=ChIJ5ank0ZG0GA0R21iRrMn0Zfs", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 37, "Status Lead": "Cold"}, {"Business Name": "Cabana do Pescador - Foz do Arelho", "Category": "Restaurante de frutos do mar", "Address": "Av. do Mar, 2500-896 Foz do Arelho, Portugal", "Rating": 4.2, "# Reviews": 1259, "Phone": "+351 262979451", "Website": "https://cabanadopescador.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Cabana%20do%20Pescador%20-%20Foz%20do%20Arelho&query_place_id=ChIJ-0kwNA1NHw0RGZceMXH8rkk", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 37, "Status Lead": "Cold"}, {"Business Name": "Petrarum Domus Restaurante", "Category": "Restaurante", "Address": "R. Direita 38, 2510-039 \u00d3bidos, Portugal", "Rating": 4.1, "# Reviews": 1477, "Phone": "+351 262959620", "Website": "http://www.petrarumdomus.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Petrarum%20Domus%20Restaurante&query_place_id=ChIJP8k0RU2zGA0R0O3vUsIgRKg", "Takeaway Signal": false, "Order Online": false, "Menu URL": "https://petrarumdomus.com/ementa/", "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 37, "Status Lead": "Cold"}, {"Business Name": "Senhor da Pedra", "Category": "Restaurante", "Address": "2510-102 \u00d3bidos, Portugal", "Rating": 4.4, "# Reviews": 942, "Phone": "+351 262959315", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Senhor%20da%20Pedra&query_place_id=ChIJtYgnP4a0GA0R0-GH9D6wkCw", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 37, "Status Lead": "Cold"}, {"Business Name": "Cafetaria Puro Cake Lab", "Category": "Caf\u00e9", "Address": "Pra\u00e7a Jacob Rodrigues Pereira 18, 2520-294 Peniche, Portugal", "Rating": 4.4, "# Reviews": 1128, "Phone": "+351 916950480", "Website": "https://www.facebook.com/puro.cakelab", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Cafetaria%20Puro%20Cake%20Lab&query_place_id=ChIJERoQ3-JFHw0RYTShfTIeI6k", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 37, "Status Lead": "Cold"}, {"Business Name": "Sol \u00e9 Vida - Snack Bar", "Category": "Restaurante de frutos do mar", "Address": "Largo Nossa Sra. da Consola\u00e7\u00e3o 9, 2525-433 Atouguia da Baleia, Portugal", "Rating": 4.4, "# Reviews": 1651, "Phone": null, "Website": "https://www.instagram.com/sol.e.vida_restaurante?igsh=MTllNmgwanoxdWZjMA%3D%3D&utm_source=qr", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Sol%20%C3%A9%20Vida%20-%20Snack%20Bar&query_place_id=ChIJqyKtgYRIHw0R-OzpGLS5790", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 37, "Status Lead": "Cold"}, {"Business Name": "O Cov\u00e3o dos Musaranhos", "Category": "Restaurante", "Address": "Vau, Portugal", "Rating": 4.1, "# Reviews": 1411, "Phone": "+351 262969930", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=O%20Cov%C3%A3o%20dos%20Musaranhos&query_place_id=ChIJH6v90oxMHw0Rz5NYGa36J_s", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 37, "Status Lead": "Cold"}, {"Business Name": "Cais da Praia . Beach Restaurant - Cocktail Bar . Foz do Arelho", "Category": "Restaurante", "Address": "Av. do Mar, 2500-896 Foz do Arelho, Portugal", "Rating": 4.3, "# Reviews": 2841, "Phone": "+351 966528533", "Website": "https://www.caisdapraia.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Cais%20da%20Praia%20.%20Beach%20Restaurant%20-%20Cocktail%20Bar%20.%20Foz%20do%20Arelho&query_place_id=ChIJ9y83Nw1NHw0RdgdJ2pwI63Y", "Takeaway Signal": false, "Order Online": false, "Menu URL": "https://www.caisdapraia.com/menus/", "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 37, "Status Lead": "Cold"}, {"Business Name": "Miramar", "Category": "Restaurante", "Address": "Av. do Mar 42, 2520-205 Peniche, Portugal", "Rating": 3.9, "# Reviews": 1847, "Phone": "+351 963611102", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Miramar&query_place_id=ChIJ4zOEquJFHw0RTkIWIFUdksk", "Takeaway Signal": false, "Order Online": false, "Menu URL": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 33, "Status Lead": "Cold"}];
+var currentIdx = null;
+var statuses = DATA.map(function(r){ return r['Status Lead'] || 'Cold'; });
+
+function filter() {
+  var q = document.getElementById('search').value.toLowerCase();
+  var st = document.getElementById('filterStatus').value;
+  var ig = document.getElementById('filterIG').value;
+  var ta = document.getElementById('filterTA').value;
+  var sort = document.getElementById('sortBy').value;
+  var rows = Array.from(document.querySelectorAll('#tbody .row'));
+  var visible = rows.filter(function(r) {
+    if (q && r.dataset.name.toLowerCase().indexOf(q) === -1) return false;
+    if (st && r.dataset.status !== st) return false;
+    if (ig && r.dataset.ig !== ig) return false;
+    if (ta && r.dataset.ta !== ta) return false;
+    return true;
+  });
+  rows.forEach(function(r){ r.style.display='none'; });
+  var sortFn = {
+    score: function(a,b){ return (DATA[b.rowIndex-1]['Score AI Potencial']||0)-(DATA[a.rowIndex-1]['Score AI Potencial']||0); },
+    reviews: function(a,b){ return (DATA[b.rowIndex-1]['# Reviews']||0)-(DATA[a.rowIndex-1]['# Reviews']||0); },
+    followers: function(a,b){ return (DATA[b.rowIndex-1]['Seguidores']||0)-(DATA[a.rowIndex-1]['Seguidores']||0); },
+    rating: function(a,b){ return (DATA[b.rowIndex-1]['Rating']||0)-(DATA[a.rowIndex-1]['Rating']||0); },
+  }[sort];
+  visible.sort(sortFn);
+  var tbody = document.getElementById('tbody');
+  visible.forEach(function(r){ r.style.display=''; tbody.appendChild(r); });
+}
+
+function openModal(i) {
+  currentIdx = i;
+  var r = DATA[i];
+  document.getElementById('m-name').textContent = r['Business Name'] || '';
+  var rows = [
+    ['Category', r['Category']],
+    ['Address', r['Address']],
+    ['Rating', r['Rating'] ? r['Rating'] + ' ⭐' : '—'],
+    ['Reviews', r['# Reviews'] ? r['# Reviews'].toLocaleString('pt') : '—'],
+    ['Score AI', r['Score AI Potencial']],
+    ['Takeaway', r['Takeaway Signal'] ? '🛵 Sim' : 'Não'],
+    ['Telefone', r['Phone'] || '—'],
+    ['Instagram', r['Instagram Handle'] || '—'],
+    ['Seguidores', r['Seguidores'] ? r['Seguidores'].toLocaleString('pt') : '—'],
+    ['Posts', r['Posts'] || '—'],
+    ['Website', r['Website'] ? '<a href="'+r['Website']+'" target="_blank">'+r['Website']+'</a>' : '—'],
+  ];
+  document.getElementById('m-rows').innerHTML = rows.map(function(x){
+    return '<div class="modal-row"><span class="label">'+x[0]+'</span><span class="val">'+x[1]+'</span></div>';
+  }).join('');
+  var bio = r['Bio'];
+  var bioEl = document.getElementById('m-bio');
+  if (bio) { bioEl.textContent = bio; bioEl.style.display='block'; } else { bioEl.style.display='none'; }
+  var sel = document.getElementById('m-status');
+  sel.value = statuses[i];
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) document.getElementById('modal').classList.remove('open');
+}
+
+function updateStatus() {
+  if (currentIdx === null) return;
+  var st = document.getElementById('m-status').value;
+  statuses[currentIdx] = st;
+  var rows = document.querySelectorAll('#tbody .row');
+  rows[currentIdx].dataset.status = st;
+  var colors = {Cold:'#6b7280',Contacted:'#3b82f6',Interested:'#f59e0b',Client:'#22c55e'};
+  var badges = rows[currentIdx].querySelectorAll('span');
+  var lastBadge = badges[badges.length-1];
+  lastBadge.style.background = colors[st] || '#6b7280';
+  lastBadge.textContent = st;
+}
+
+filter();
+</script>
+</body>
+</html>

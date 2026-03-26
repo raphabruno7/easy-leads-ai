@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 40" fill="none">
+  <!-- Icon: Target/crosshair with AI spark -->
+  <g transform="translate(0, 0)">
+    <!-- Outer circle -->
+    <circle cx="20" cy="20" r="16" stroke="#3b82f6" stroke-width="2" fill="none"/>
+    <!-- Inner circle -->
+    <circle cx="20" cy="20" r="6" fill="#3b82f6"/>
+    <!-- Crosshair lines -->
+    <line x1="20" y1="1" x2="20" y2="8" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
+    <line x1="20" y1="32" x2="20" y2="39" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
+    <line x1="1" y1="20" x2="8" y2="20" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
+    <line x1="32" y1="20" x2="39" y2="20" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
+    <!-- AI spark lines (top-right) -->
+    <line x1="32" y1="4" x2="36" y2="4" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="34" y1="2" x2="34" y2="6" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="34" cy="10" r="0.8" fill="#3b82f6"/>
+  </g>
+  <!-- Wordmark -->
+  <text x="50" y="27" font-family="Inter, -apple-system, sans-serif" font-size="22" font-weight="700" fill="#0f172a" letter-spacing="-0.5">Easy Leads</text>
+  <text x="198" y="27" font-family="Inter, -apple-system, sans-serif" font-size="22" font-weight="500" fill="#3b82f6" letter-spacing="-0.5">AI</text>
+</svg>

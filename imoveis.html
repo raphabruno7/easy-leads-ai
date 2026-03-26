@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Real Estate — AI Agent Leads</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#ffffff;color:#334155;min-height:100vh}
+.header{background:#ffffff;padding:20px 24px;position:sticky;top:0;z-index:100;border-bottom:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.header h1{font-size:20px;font-weight:700;color:#0f172a;margin-bottom:12px}
+.sub{font-size:13px;color:#64748b;margin-bottom:14px}
+.back{color:#3b82f6;font-size:12px;text-decoration:none;margin-bottom:8px;display:block}
+.back:hover{color:#2563eb}
+.stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 14px;font-size:12px;color:#64748b}
+.stat b{color:#0f172a;font-size:16px;display:block}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filters input,.filters select{background:#f8fafc;border:1px solid #e2e8f0;color:#334155;padding:7px 12px;border-radius:6px;font-size:13px;outline:none}
+.filters input:focus,.filters select:focus{border-color:#3b82f6}
+table{width:100%;border-collapse:collapse}
+thead th{background:#ffffff;padding:10px 8px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#64748b;text-align:left;position:sticky;top:0;border-bottom:1px solid #e2e8f0}
+tbody tr:hover td{background:#f8fafc}
+tbody td{border-bottom:1px solid #f1f5f9}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#ffffff;border:1px solid #e2e8f0;box-shadow:0 8px 24px rgba(0,0,0,.1);border-radius:12px;padding:28px;max-width:520px;width:90%;max-height:85vh;overflow-y:auto;position:relative}
+.modal h2{font-size:18px;margin-bottom:16px;color:#0f172a}
+.modal-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #e2e8f0;font-size:13px}
+.modal-row .label{color:#64748b}
+.modal-row .val{color:#334155;text-align:right;max-width:60%}
+.modal-close{position:absolute;top:14px;right:18px;background:none;border:none;color:#94a3b8;font-size:22px;cursor:pointer}
+.modal-status{margin-top:14px}
+.modal-status select{width:100%;background:#f8fafc;border:1px solid #e2e8f0;color:#334155;padding:8px;border-radius:6px;font-size:13px}
+.modal-bio{margin-top:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px;font-size:12px;color:#64748b;line-height:1.5}
+a{color:#3b82f6}
+</style>
+</head>
+<body>
+<div class="header">
+  <a href="index.html" class="back">&larr; Back</a>
+  <h1>Real Estate</h1>
+  <p class="sub">Lead prospecting pipeline &mdash; Peniche area</p>
+  <div class="stats">
+    <div class="stat"><b>50</b>Total</div>
+    <div class="stat"><b>15</b>Instagram</div>
+    <div class="stat"><b>46</b>Phone</div>
+    <div class="stat"><b>38.0</b>Avg Score</div>
+  </div>
+  <div class="filters">
+    <input type="text" id="search" placeholder="Search..." oninput="filter()" style="width:200px">
+    <select id="filterStatus" onchange="filter()">
+      <option value="">All statuses</option>
+      <option>Cold</option><option>Contacted</option><option>Interested</option><option>Client</option>
+    </select>
+    <select id="filterIG" onchange="filter()">
+      <option value="">With/Without Instagram</option>
+      <option value="yes">With Instagram</option>
+      <option value="no">Without Instagram</option>
+    </select>
+    <select id="sortBy" onchange="filter()">
+      <option value="score">Score AI</option>
+      <option value="reviews">Reviews</option>
+      <option value="followers">Followers</option>
+    </select>
+  </div>
+</div>
+<div style="overflow-x:auto">
+<table>
+  <thead><tr>
+    <th>Business</th><th>Instagram</th><th style="text-align:right">Followers</th>
+    <th style="text-align:right">Posts</th><th style="text-align:center">Rating</th>
+    <th>Phone</th><th style="text-align:center">Score</th><th style="text-align:center">Status</th>
+  </tr></thead>
+  <tbody id="tbody"><tr class="row" data-name="ERA Peniche/Óbidos" data-handle="@era_peniche_obidos" data-status="Cold" data-ig="yes" onclick="openModal(0)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">ERA Peniche/Óbidos <a href="http://www.era.pt/penicheobidos?google=" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/era_peniche_obidos" target="_blank" style="color:#e1306c;text-decoration:none">@era_peniche_obidos</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">2.456</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">93</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.2</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262798010" target="_blank" style="color:#25d366;text-decoration:none">+351 262798010</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">68</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="KBL Mediação Imobiliária" data-handle="@kblimobiliaria" data-status="Cold" data-ig="yes" onclick="openModal(1)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">KBL Mediação Imobiliária <a href="http://www.kbl.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/kblimobiliaria" target="_blank" style="color:#e1306c;text-decoration:none">@kblimobiliaria</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">8.203</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">12</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.9</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351939784848" target="_blank" style="color:#25d366;text-decoration:none">+351 939784848</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">65</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="ERA Óbidos" data-handle="@era_peniche_obidos" data-status="Cold" data-ig="yes" onclick="openModal(2)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">ERA Óbidos <a href="https://www.era.pt/agencias/penicheobidos?google=" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/era_peniche_obidos" target="_blank" style="color:#e1306c;text-decoration:none">@era_peniche_obidos</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">2.456</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">20</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">5.0</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262958179" target="_blank" style="color:#25d366;text-decoration:none">+351 262958179</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">65</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Onda Nova Villa" data-handle="@ondanovavilla" data-status="Cold" data-ig="yes" onclick="openModal(3)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Onda Nova Villa <a href="nan" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/ondanovavilla" target="_blank" style="color:#e1306c;text-decoration:none">@ondanovavilla</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">1.594</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">15</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">5.0</td>
+  <td style="padding:10px 8px;font-size:12px">—</td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">63</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Suddenly Holiday Rentals in Praia D&#x27;El Rey" data-handle="@suddenly.pt" data-status="Cold" data-ig="yes" onclick="openModal(4)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Suddenly Holiday Rentals in Praia D&#x27;El Rey <a href="http://www.suddenly.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/suddenly.pt" target="_blank" style="color:#e1306c;text-decoration:none">@suddenly.pt</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">296</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">25</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.9</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351963157304" target="_blank" style="color:#25d366;text-decoration:none">+351 963157304</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">61</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="SUPERCASA - Portal Nacional de Imobiliário" data-handle="@supercasa.pt" data-status="Cold" data-ig="yes" onclick="openModal(5)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">SUPERCASA - Portal Nacional de Imobiliário <a href="https://supercasa.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/supercasa.pt" target="_blank" style="color:#e1306c;text-decoration:none">@supercasa.pt</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">2.669</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">80</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">3.4</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262840464" target="_blank" style="color:#25d366;text-decoration:none">+351 262840464</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">60</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Privilégio - Imobiliária" data-handle="@filipanunciorealestate" data-status="Cold" data-ig="yes" onclick="openModal(6)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Privilégio - Imobiliária <a href="http://www.privilegio.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/filipanunciorealestate" target="_blank" style="color:#e1306c;text-decoration:none">@filipanunciorealestate</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">1.044</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">19</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.1</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262604983" target="_blank" style="color:#25d366;text-decoration:none">+351 262604983</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">60</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="REMAX IN MOTION" data-handle="@remaxinmotionpeniche" data-status="Cold" data-ig="yes" onclick="openModal(7)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">REMAX IN MOTION <a href="http://www.remax.pt/inmotion" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/remaxinmotionpeniche" target="_blank" style="color:#e1306c;text-decoration:none">@remaxinmotionpeniche</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">104</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">35</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.6</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262789197" target="_blank" style="color:#25d366;text-decoration:none">+351 262789197</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">59</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="PRO PORTUGAL" data-handle="@proportugal.properties" data-status="Cold" data-ig="yes" onclick="openModal(8)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">PRO PORTUGAL <a href="http://www.proportugal.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/proportugal.properties" target="_blank" style="color:#e1306c;text-decoration:none">@proportugal.properties</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">4.405</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">21</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">3.8</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262282636" target="_blank" style="color:#25d366;text-decoration:none">+351 262282636</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">59</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Holiday Rental Portugal" data-handle="@holidayrentalportugal" data-status="Cold" data-ig="yes" onclick="openModal(9)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Holiday Rental Portugal <a href="http://www.holiday-rental-portugal.com/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/holidayrentalportugal" target="_blank" style="color:#e1306c;text-decoration:none">@holidayrentalportugal</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">425</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">17</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.3</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262909309" target="_blank" style="color:#25d366;text-decoration:none">+351 262909309</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">57</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Dulce e Noivo Sociedade Mediação Imobiliária" data-handle="@dulceenoivo_agenciaimobiliaria" data-status="Cold" data-ig="yes" onclick="openModal(10)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Dulce e Noivo Sociedade Mediação Imobiliária <a href="http://www.dulceenoivo.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/dulceenoivo_agenciaimobiliaria" target="_blank" style="color:#e1306c;text-decoration:none">@dulceenoivo_agenciaimobiliaria</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">421</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">32</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.0</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262082737" target="_blank" style="color:#25d366;text-decoration:none">+351 262082737</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">53</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Oestedomus" data-handle="@ze_pereira19" data-status="Cold" data-ig="yes" onclick="openModal(11)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Oestedomus <a href="https://www.oestedomus.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/ze_pereira19" target="_blank" style="color:#e1306c;text-decoration:none">@ze_pereira19</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">446</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">19</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.9</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262602175" target="_blank" style="color:#25d366;text-decoration:none">+351 262602175</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">53</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Villa Junceira" data-handle="@rc.propertymanagement" data-status="Cold" data-ig="yes" onclick="openModal(12)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Villa Junceira <a href="https://www.ferienvilla-silvercoast.com/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/rc.propertymanagement" target="_blank" style="color:#e1306c;text-decoration:none">@rc.propertymanagement</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">256</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">7</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.4</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351935778134" target="_blank" style="color:#25d366;text-decoration:none">+351 935778134</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">50</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Sea Property" data-handle="@sea.property.ferrel" data-status="Cold" data-ig="yes" onclick="openModal(13)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Sea Property <a href="http://www.seaproperty.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/sea.property.ferrel" target="_blank" style="color:#e1306c;text-decoration:none">@sea.property.ferrel</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">122</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">15</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">5.0</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262108688" target="_blank" style="color:#25d366;text-decoration:none">+351 262108688</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">47</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Rico imobiliária" data-handle="@ricoimobiliaria" data-status="Cold" data-ig="yes" onclick="openModal(14)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Rico imobiliária <a href="http://www.ricoimo.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://instagram.com/ricoimobiliaria" target="_blank" style="color:#e1306c;text-decoration:none">@ricoimobiliaria</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">23</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">64</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.4</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262783994" target="_blank" style="color:#25d366;text-decoration:none">+351 262783994</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">45</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="eGO Real Estate" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(15)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">eGO Real Estate <a href="https://www.egorealestate.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">288</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.7</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262840464" target="_blank" style="color:#25d366;text-decoration:none">+351 262840464</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">42</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="ImoHP (HomePleasure - Mediação Imobiliária e Outras Atividades, Lda)" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(16)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">ImoHP (HomePleasure - Mediação Imobiliária e Outras Atividades, Lda) <a href="http://www.imohp.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">52</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.7</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262758383" target="_blank" style="color:#25d366;text-decoration:none">+351 262758383</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">35</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="TOPcasas Real Estate Silver Coast Imobiliária" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(17)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">TOPcasas Real Estate Silver Coast Imobiliária <a href="http://www.topcasas.net/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">47</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.9</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262183332" target="_blank" style="color:#25d366;text-decoration:none">+351 262183332</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">35</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Rey Estates - Real Estate Agent" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(18)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Rey Estates - Real Estate Agent <a href="http://www.rey-estates.com/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">35</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351910329901" target="_blank" style="color:#25d366;text-decoration:none">+351 910329901</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">34</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Chave Virtual - Soc. Mediação Imobiliária Unip., Lda." data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(19)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Chave Virtual - Soc. Mediação Imobiliária Unip., Lda. <a href="http://chavevirtual.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">33</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.6</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351934197058" target="_blank" style="color:#25d366;text-decoration:none">+351 934197058</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">34</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Villa Praia Del Rey" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(20)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Villa Praia Del Rey <a href="http://www.praia-del-rey-villa.com/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">39</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+  <td style="padding:10px 8px;font-size:12px">—</td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">34</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Bom Sucesso Property Management" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(21)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Bom Sucesso Property Management <a href="http://www.bomsucessopm.com/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">33</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351935760009" target="_blank" style="color:#25d366;text-decoration:none">+351 935760009</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">34</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Engel &amp; Völkers Portugal West Coast - Real Estate - Imobiliário" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(22)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Engel &amp; Völkers Portugal West Coast - Real Estate - Imobiliário <a href="https://www.engelvoelkers.com/en-pt/oeste/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">30</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351927390312" target="_blank" style="color:#25d366;text-decoration:none">+351 927390312</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">33</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="ACERTOS E MEDIDAS IMOBILIÁRIA" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(23)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">ACERTOS E MEDIDAS IMOBILIÁRIA <a href="http://www.acertosemedidas.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">19</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262100685" target="_blank" style="color:#25d366;text-decoration:none">+351 262100685</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">32</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Suzi Oliveira unipessoal lda" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(24)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Suzi Oliveira unipessoal lda <a href="http://www.dwanguesthouses.com/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">22</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.5</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351924284527" target="_blank" style="color:#25d366;text-decoration:none">+351 924284527</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">32</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="YES Concierge Real Estate" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(25)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">YES Concierge Real Estate <a href="http://www.yesconciergerealestate.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">16</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.8</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351912682634" target="_blank" style="color:#25d366;text-decoration:none">+351 912682634</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">31</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Vetor Sucesso - Imobiliária Peniche" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(26)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Vetor Sucesso - Imobiliária Peniche <a href="https://vetorsucesso.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">16</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">5.0</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351912417037" target="_blank" style="color:#25d366;text-decoration:none">+351 912417037</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">31</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="ComprarCasa Oeste" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(27)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">ComprarCasa Oeste <a href="http://www.comprarcasa.pt/oeste" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">37</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.2</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262609419" target="_blank" style="color:#25d366;text-decoration:none">+351 262609419</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">31</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Janela Digital, S.A." data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(28)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Janela Digital, S.A. <a href="https://www.janeladigital.com/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">73</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">3.9</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262840460" target="_blank" style="color:#25d366;text-decoration:none">+351 262840460</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">30</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Best Houses Portugal - Gestão de Alojamento Local" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(29)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Best Houses Portugal - Gestão de Alojamento Local <a href="http://www.besthousesportugal.com/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">30</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.3</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351918345808" target="_blank" style="color:#25d366;text-decoration:none">+351 918345808</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">30</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Veigas Costa Prata - Agência Imobiliária / Real Estate Agency" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(30)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Veigas Costa Prata - Agência Imobiliária / Real Estate Agency <a href="http://www.veigascostaprata.com/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">9</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.6</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262060664" target="_blank" style="color:#25d366;text-decoration:none">+351 262060664</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">29</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="PINK by Precious" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(31)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">PINK by Precious <a href="https://www.facebook.com/JMG/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">10</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.6</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351916465217" target="_blank" style="color:#25d366;text-decoration:none">+351 916465217</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">29</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Fairway and Sea Four Bedroom Upstairs Villa" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(32)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Fairway and Sea Four Bedroom Upstairs Villa <a href="https://www.freedomsurfhouse.com/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">9</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.8</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351927001678" target="_blank" style="color:#25d366;text-decoration:none">+351 927001678</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">29</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Overplace - Sociedade de Mediação Imobiliária, Lda • PENICHE/LOURINHÃ" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(33)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Overplace - Sociedade de Mediação Imobiliária, Lda • PENICHE/LOURINHÃ <a href="http://www.overplace.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">21</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.0</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351918962981" target="_blank" style="color:#25d366;text-decoration:none">+351 918962981</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">29</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Mais Consultores #Team Peniche" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(34)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Mais Consultores #Team Peniche <a href="https://www.maisconsultores.pt/imoveis/comprar/moradia/peniche" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">7</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">5.0</td>
+  <td style="padding:10px 8px;font-size:12px">—</td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">28</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Honeysands Residences" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(35)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Honeysands Residences <a href="http://www.honeysands-residences.com/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">7</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">5.0</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351910089422" target="_blank" style="color:#25d366;text-decoration:none">+351 910089422</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">28</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="CASASAPO - Portal Nacional de Imobiliário" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(36)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">CASASAPO - Portal Nacional de Imobiliário <a href="https://casa.sapo.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">46</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">3.8</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262840464" target="_blank" style="color:#25d366;text-decoration:none">+351 262840464</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">28</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Jeanette da Silva - Real Estate" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(37)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Jeanette da Silva - Real Estate <a href="nan" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">5</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">5.0</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262909099" target="_blank" style="color:#25d366;text-decoration:none">+351 262909099</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">27</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="André Ganhão - Consultor Imobiliário" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(38)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">André Ganhão - Consultor Imobiliário <a href="https://andreganhao.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">5</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">5.0</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351914099382" target="_blank" style="color:#25d366;text-decoration:none">+351 914099382</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">27</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Cosy&amp;B Residence partner" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(39)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Cosy&amp;B Residence partner <a href="https://www.cosynb.com/?utm_source=google&amp;utm_medium=wix_google_business_profile&amp;utm_campaign=3832810361779824579" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">5</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">5.0</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351962098541" target="_blank" style="color:#25d366;text-decoration:none">+351 962098541</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">27</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Villa Mar e Lagoa" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(40)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Villa Mar e Lagoa <a href="http://www.vakantievilla-portugal.com/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">5</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">5.0</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/32496994322" target="_blank" style="color:#25d366;text-decoration:none">+32 496 99 43 22</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">27</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Ana Lima Real Estate - Consultora Imobiliária" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(41)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Ana Lima Real Estate - Consultora Imobiliária <a href="https://www.analima.maismls.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">6</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">5.0</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351963601798" target="_blank" style="color:#25d366;text-decoration:none">+351 963601798</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">27</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Downtown Peniche Apartment" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(42)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Downtown Peniche Apartment <a href="https://balealhome.com/rooms/downtown-peniche-apartment" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">6</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">5.0</td>
+  <td style="padding:10px 8px;font-size:12px">—</td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">27</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Casa Costa Prata" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(43)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Casa Costa Prata <a href="https://casacostaprata.nl/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">12</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.1</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351913796001" target="_blank" style="color:#25d366;text-decoration:none">+351 913796001</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">27</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Cenario Oeste - Portugal Silver Coast Properties‎" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(44)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Cenario Oeste - Portugal Silver Coast Properties‎ <a href="http://www.cenario-oeste.com/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">9</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.1</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262185560" target="_blank" style="color:#25d366;text-decoration:none">+351 262185560</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">26</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Ocean Pearl Rental Apartment Baleal Beach" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(45)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Ocean Pearl Rental Apartment Baleal Beach <a href="nan" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">4</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">5.0</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/1416-318-5724" target="_blank" style="color:#25d366;text-decoration:none">+1 416-318-5724</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">26</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Obidos house with private pool" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(46)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Obidos house with private pool <a href="http://www.obidos.house/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">8</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.4</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/32475530430" target="_blank" style="color:#25d366;text-decoration:none">+32 475 53 04 30</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">25</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="Corner Real Estate" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(47)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">Corner Real Estate <a href="https://cornerealestate.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">7</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">4.1</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351919109268" target="_blank" style="color:#25d366;text-decoration:none">+351 919109268</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">25</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="ComprarCasa - Imobiliária | Caldas da Rainha" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(48)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">ComprarCasa - Imobiliária | Caldas da Rainha <a href="http://www.comprarcasa.pt/caldasdarainha" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">10</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">3.9</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351262835298" target="_blank" style="color:#25d366;text-decoration:none">+351 262835298</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">22</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr><tr class="row" data-name="CV Management Gestão de Propriedades" data-handle="nan" data-status="Cold" data-ig="yes" onclick="openModal(49)" style="cursor:pointer">
+  <td style="padding:10px 8px;font-size:13px;font-weight:500">CV Management Gestão de Propriedades <a href="http://www.cvmanagement.pt/" target="_blank" style="color:#60a5fa;font-size:11px">↗</a></td>
+  <td style="padding:10px 8px;font-size:12px"><a href="nan" target="_blank" style="color:#e1306c;text-decoration:none">nan</a></td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">—</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:right">9</td>
+  <td style="padding:10px 8px;font-size:12px;text-align:center">3.9</td>
+  <td style="padding:10px 8px;font-size:12px"><a href="https://wa.me/351939312155" target="_blank" style="color:#25d366;text-decoration:none">+351 939312155</a></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#ef4444;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">22</span></td>
+  <td style="padding:10px 8px;text-align:center"><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:12px;font-size:11px">Cold</span></td>
+</tr></tbody>
+</table>
+</div>
+
+<div class="modal-bg" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-box">
+    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">×</button>
+    <h2 id="m-name"></h2>
+    <div id="m-rows"></div>
+    <div class="modal-bio" id="m-bio" style="display:none"></div>
+    <div class="modal-status">
+      <select id="m-status" onchange="updateStatus()">
+        <option>Cold</option><option>Contacted</option><option>Interested</option><option>Client</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<script>
+var DATA=[{"Business Name": "ERA Peniche/\u00d3bidos", "Category": "Imobili\u00e1ria", "Address": "Av. Monsenhor Bastos 7A, 2520-206 Peniche, Portugal", "Rating": 4.2, "# Reviews": 93, "Phone": "+351 262798010", "Website": "http://www.era.pt/penicheobidos?google=", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=ERA%20Peniche%2F%C3%93bidos&query_place_id=ChIJYxocSuNFHw0R9fK2dSao6i8", "Takeaway Signal": false, "Instagram Handle": "@era_peniche_obidos", "Instagram URL": "https://instagram.com/era_peniche_obidos", "Seguidores": 2456.0, "Posts": 1313.0, "Bio": "Discover unique and inspiring homes \ud83c\udfe1\ud83c\udfe2\nAnjos, Guia & Vitorino - Sociedade de Media\u00e7\u00e3o Imobili\u00e1ria, Lda.\nAMI 6071", "Score AI Potencial": 68, "Status Lead": "Cold"}, {"Business Name": "KBL Media\u00e7\u00e3o Imobili\u00e1ria", "Category": "Agente imobili\u00e1rio", "Address": "R. Francisco Seia 5, 2520-439 Peniche, Portugal", "Rating": 4.9, "# Reviews": 12, "Phone": "+351 939784848", "Website": "http://www.kbl.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=KBL%20Media%C3%A7%C3%A3o%20Imobili%C3%A1ria&query_place_id=ChIJ-TtrSnJHHw0RGmCEKIGec6w", "Takeaway Signal": false, "Instagram Handle": "@kblimobiliaria", "Instagram URL": "https://instagram.com/kblimobiliaria", "Seguidores": 8203.0, "Posts": 447.0, "Bio": "Real Estate Portugal \ud83c\uddf5\ud83c\uddf9 \nRealizando sonhos!\nAMI:15268\n\ud83d\udcf1+351 939784848\n\ud83d\udd11comprar \ud83c\udfd8\ufe0fvender \ud83c\udfd8\ufe0farrendar\nConsulte nossos im\u00f3veis", "Score AI Potencial": 65, "Status Lead": "Cold"}, {"Business Name": "ERA \u00d3bidos", "Category": "Imobili\u00e1ria", "Address": "Estrada Nacional 8, 2510-182 \u00d3bidos, Portugal", "Rating": 5.0, "# Reviews": 20, "Phone": "+351 262958179", "Website": "https://www.era.pt/agencias/penicheobidos?google=", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=ERA%20%C3%93bidos&query_place_id=ChIJgy4bRr61GA0RkVCH4ehxPS8", "Takeaway Signal": false, "Instagram Handle": "@era_peniche_obidos", "Instagram URL": "https://instagram.com/era_peniche_obidos", "Seguidores": 2456.0, "Posts": 1313.0, "Bio": "Discover unique and inspiring homes \ud83c\udfe1\ud83c\udfe2\nAnjos, Guia & Vitorino - Sociedade de Media\u00e7\u00e3o Imobili\u00e1ria, Lda.\nAMI 6071", "Score AI Potencial": 65, "Status Lead": "Cold"}, {"Business Name": "Onda Nova Villa", "Category": "Vila", "Address": "R. Frei Domingues Sanches 21, S\u00e3o Bernardino, 2525-771 Atouguia da Baleia, Portugal", "Rating": 5.0, "# Reviews": 15, "Phone": null, "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Onda%20Nova%20Villa&query_place_id=ChIJx3OJgXFJHw0Rpdpld62Te8c", "Takeaway Signal": false, "Instagram Handle": "@ondanovavilla", "Instagram URL": "https://instagram.com/ondanovavilla", "Seguidores": 1594.0, "Posts": 239.0, "Bio": "Country Beach House, 1h drive from Lisbon, 10min walk to the beach.\n\ud83d\udde1S\u00e3o Bernardino, Peniche, Portugal.", "Score AI Potencial": 63, "Status Lead": "Cold"}, {"Business Name": "Suddenly Holiday Rentals in Praia D'El Rey", "Category": "Imobili\u00e1ria de alugu\u00e9is por temporada", "Address": "Av. da Liberdade 46, 2525-801 Serra d' El-Rei, Portugal", "Rating": 4.9, "# Reviews": 25, "Phone": "+351 963157304", "Website": "http://www.suddenly.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Suddenly%20Holiday%20Rentals%20in%20Praia%20D'El%20Rey&query_place_id=ChIJqZZpWtBLHw0Ry-BalPSFr08", "Takeaway Signal": false, "Instagram Handle": "@suddenly.pt", "Instagram URL": "https://instagram.com/suddenly.pt", "Seguidores": 296.0, "Posts": 266.0, "Bio": "Silver Coast Holiday Rentals & Property Management", "Score AI Potencial": 61, "Status Lead": "Cold"}, {"Business Name": "SUPERCASA - Portal Nacional de Imobili\u00e1rio", "Category": "Agente imobili\u00e1rio", "Address": "R. da Criatividade, 2510-216 \u00d3bidos, Portugal", "Rating": 3.4, "# Reviews": 80, "Phone": "+351 262840464", "Website": "https://supercasa.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=SUPERCASA%20-%20Portal%20Nacional%20de%20Imobili%C3%A1rio&query_place_id=ChIJj5HfH7-zGA0RCgexbIJgYKY", "Takeaway Signal": false, "Instagram Handle": "@supercasa.pt", "Instagram URL": "https://instagram.com/supercasa.pt", "Seguidores": 2669.0, "Posts": 1351.0, "Bio": "O portal incontorn\u00e1vel do setor imobili\u00e1rio em Portugal!\n\ud83c\udfe0 Encontre a sua casa de sonho!\n\ud83d\udd17 Queres saber mais?", "Score AI Potencial": 60, "Status Lead": "Cold"}, {"Business Name": "Privil\u00e9gio - Imobili\u00e1ria", "Category": "Imobili\u00e1ria", "Address": "R. do Com\u00e9rcio 97 B, 2540-076 Bombarral, Portugal", "Rating": 4.1, "# Reviews": 19, "Phone": "+351 262604983", "Website": "http://www.privilegio.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Privil%C3%A9gio%20-%20Imobili%C3%A1ria&query_place_id=ChIJLfQace3KGA0RXAIdxhoezeg", "Takeaway Signal": false, "Instagram Handle": "@filipanunciorealestate", "Instagram URL": "https://instagram.com/filipanunciorealestate", "Seguidores": 1044.0, "Posts": 1226.0, "Bio": "\ud83d\udccdGrande Lisboa \u2022 Ribatejo \u2022 Zona Oeste\nConsultora Imob. Independente +20 anos\n+Vantagens  +Solu\u00e7\u00f5es +Dedica\u00e7\u00e3o total\nConversamos? \u2935\ufe0f\nAMI 21683", "Score AI Potencial": 60, "Status Lead": "Cold"}, {"Business Name": "REMAX IN MOTION", "Category": "Imobili\u00e1ria", "Address": "R. Ramiro de Matos Bilhau 21 RC Dto, 2520-486 Peniche, Portugal", "Rating": 4.6, "# Reviews": 35, "Phone": "+351 262789197", "Website": "http://www.remax.pt/inmotion", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=REMAX%20IN%20MOTION&query_place_id=ChIJyRRmWONFHw0RiUHavG2W398", "Takeaway Signal": false, "Instagram Handle": "@remaxinmotionpeniche", "Instagram URL": "https://instagram.com/remaxinmotionpeniche", "Seguidores": 104.0, "Posts": 546.0, "Bio": "RE/MAX IN MOTION || Peniche & Ferrel\n\ud83c\udfe0\ud83c\udf0a O SEU LAR \u00c0 BEIRA-MAR", "Score AI Potencial": 59, "Status Lead": "Cold"}, {"Business Name": "PRO PORTUGAL", "Category": "Imobili\u00e1ria", "Address": "Rua Pedras Muitas n\u00ba 22 Baleal, 2520-050 Peniche, Portugal", "Rating": 3.8, "# Reviews": 21, "Phone": "+351 262282636", "Website": "http://www.proportugal.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=PRO%20PORTUGAL&query_place_id=ChIJkxYzDAhGHw0R47N5VoUStqo", "Takeaway Signal": false, "Instagram Handle": "@proportugal.properties", "Instagram URL": "https://instagram.com/proportugal.properties", "Seguidores": 4405.0, "Posts": 1165.0, "Bio": "AMI 896 est.1995\nSelecting the best properties on the West Coast of \ud83c\uddf5\ud83c\uddf9& beyond! \ud83c\udfe1\ud83c\udf0a\u26f3\ufe0f \nReal Estate Agency\ud83d\udd11\nInvestment Advisors\ud83d\udcc8\nCustom Made Projects\ud83d\udcd0", "Score AI Potencial": 59, "Status Lead": "Cold"}, {"Business Name": "Holiday Rental Portugal", "Category": "Imobili\u00e1ria de alugu\u00e9is por temporada", "Address": "Av. da Liberdade 46, 2525-801 Serra d' El-Rei, Portugal", "Rating": 4.3, "# Reviews": 17, "Phone": "+351 262909309", "Website": "http://www.holiday-rental-portugal.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Holiday%20Rental%20Portugal&query_place_id=ChIJXxkl_NBLHw0RI3QG-sUQCgw", "Takeaway Signal": false, "Instagram Handle": "@holidayrentalportugal", "Instagram URL": "https://instagram.com/holidayrentalportugal", "Seguidores": 425.0, "Posts": 217.0, "Bio": "Silver Coast Holiday Rental & Property Management\nPraia d'el Rey \u2022 \u00d3bidos \u2022 Peniche \u2022 Baleal", "Score AI Potencial": 57, "Status Lead": "Cold"}, {"Business Name": "Dulce e Noivo Sociedade Media\u00e7\u00e3o Imobili\u00e1ria", "Category": "Imobili\u00e1ria", "Address": "R. do Brejo 25, 2520-140 Peniche, Portugal", "Rating": 4.0, "# Reviews": 32, "Phone": "+351 262082737", "Website": "http://www.dulceenoivo.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Dulce%20e%20Noivo%20Sociedade%20Media%C3%A7%C3%A3o%20Imobili%C3%A1ria&query_place_id=ChIJl43lY-JFHw0R1MLygGvrGUE", "Takeaway Signal": false, "Instagram Handle": "@dulceenoivo_agenciaimobiliaria", "Instagram URL": "https://instagram.com/dulceenoivo_agenciaimobiliaria", "Seguidores": 421.0, "Posts": 68.0, "Bio": "\ud83c\udfe1 Media\u00e7\u00e3o Imobili\u00e1ria em todos os im\u00f3veis\ud83c\udfe1", "Score AI Potencial": 53, "Status Lead": "Cold"}, {"Business Name": "Oestedomus", "Category": "Imobili\u00e1ria", "Address": "R. Lu\u00eds de Cam\u00f5es 13A, 2540-113 Bombarral, Portugal", "Rating": 4.9, "# Reviews": 19, "Phone": "+351 262602175", "Website": "https://www.oestedomus.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Oestedomus&query_place_id=ChIJLULGeVfLGA0R_KLKuTtGruw", "Takeaway Signal": false, "Instagram Handle": "@ze_pereira19", "Instagram URL": "https://instagram.com/ze_pereira19", "Seguidores": 446.0, "Posts": 50.0, "Bio": null, "Score AI Potencial": 53, "Status Lead": "Cold"}, {"Business Name": "Villa Junceira", "Category": "Vila", "Address": "R. da Junceira 19, 2510-772, Portugal", "Rating": 4.4, "# Reviews": 7, "Phone": "+351 935778134", "Website": "https://www.ferienvilla-silvercoast.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Villa%20Junceira&query_place_id=ChIJaUFSjKG1GA0Rma1qV1TjPUk", "Takeaway Signal": false, "Instagram Handle": "@rc.propertymanagement", "Instagram URL": "https://instagram.com/rc.propertymanagement", "Seguidores": 256.0, "Posts": 151.0, "Bio": "\ud83d\udcde +351 913 588 490\n\ud83d\udce9 geral@residenceconfidence.com\n\ud83c\udfd8\ufe0f Property Management and Holiday Rental\n\ud83d\udccdSilver Coast, Portugal\nwww.residenceconfidence.com", "Score AI Potencial": 50, "Status Lead": "Cold"}, {"Business Name": "Sea Property", "Category": "Imobili\u00e1ria", "Address": "R. das Escolas 8, 2520-131 Ferrel, Portugal", "Rating": 5.0, "# Reviews": 15, "Phone": "+351 262108688", "Website": "http://www.seaproperty.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Sea%20Property&query_place_id=ChIJmcuVfVhPHw0RrXtAdQFJ57w", "Takeaway Signal": false, "Instagram Handle": "@sea.property.ferrel", "Instagram URL": "https://instagram.com/sea.property.ferrel", "Seguidores": 122.0, "Posts": 3.0, "Bio": "\ud83d\udcdd AMI 22511\n\ud83d\udccd Rua das Escolas n\u00b08, 2520-131 Ferrel\n\ud83d\udce7 geral@seaproperty.pt\n\ud83d\udcde (+351) 912885066 \n\ud83d\udcde (+351) 919216555", "Score AI Potencial": 47, "Status Lead": "Cold"}, {"Business Name": "Rico imobili\u00e1ria", "Category": "Imobili\u00e1ria", "Address": "R. Ant\u00f3nio Concei\u00e7\u00e3o Bento 6, 2520-285 Peniche, Portugal", "Rating": 4.4, "# Reviews": 64, "Phone": "+351 262783994", "Website": "http://www.ricoimo.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Rico%20imobili%C3%A1ria&query_place_id=ChIJVUvxuORFHw0RRJ28HzBjKew", "Takeaway Signal": false, "Instagram Handle": "@ricoimobiliaria", "Instagram URL": "https://instagram.com/ricoimobiliaria", "Seguidores": 23.0, "Posts": 1.0, "Bio": "Uma das mais antigas imobili\u00e1rias Portuguesas, na media\u00e7\u00e3o imobili\u00e1ria desde o ano de 1993 .", "Score AI Potencial": 45, "Status Lead": "Cold"}, {"Business Name": "eGO Real Estate", "Category": "Empresa de Software", "Address": "R. da Criatividade 6, 2510-216 \u00d3bidos, Portugal", "Rating": 4.7, "# Reviews": 288, "Phone": "+351 262840464", "Website": "https://www.egorealestate.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=eGO%20Real%20Estate&query_place_id=ChIJg33aeHGzGA0RJ7rodbsj_vc", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 42, "Status Lead": "Cold"}, {"Business Name": "ImoHP (HomePleasure - Media\u00e7\u00e3o Imobili\u00e1ria e Outras Atividades, Lda)", "Category": "Imobili\u00e1ria", "Address": "R. P\u00f4r do Sol N.\u00ba6, 2525-450 Atouguia da Baleia, Portugal", "Rating": 4.7, "# Reviews": 52, "Phone": "+351 262758383", "Website": "http://www.imohp.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=ImoHP%20(HomePleasure%20-%20Media%C3%A7%C3%A3o%20Imobili%C3%A1ria%20e%20Outras%20Atividades%2C%20Lda)&query_place_id=ChIJi3shieBIHw0R-nCjs4g3zxw", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 35, "Status Lead": "Cold"}, {"Business Name": "TOPcasas Real Estate Silver Coast Imobili\u00e1ria", "Category": "Imobili\u00e1ria", "Address": "R. Fernando Quaresma 1, 2500-486 Foz do Arelho, Portugal", "Rating": 4.9, "# Reviews": 47, "Phone": "+351 262183332", "Website": "http://www.topcasas.net/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=TOPcasas%20Real%20Estate%20Silver%20Coast%20Imobili%C3%A1ria&query_place_id=ChIJixwEHnNNHw0R9F423bnlvH8", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 35, "Status Lead": "Cold"}, {"Business Name": "Rey Estates - Real Estate Agent", "Category": "Imobili\u00e1ria", "Address": "Beco do Aterro, 2525-828 Serra d' El-Rei, Portugal", "Rating": 4.5, "# Reviews": 35, "Phone": "+351 910329901", "Website": "http://www.rey-estates.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Rey%20Estates%20-%20Real%20Estate%20Agent&query_place_id=ChIJ_Qb-yNBLHw0Rxaxm6UNi6y0", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 34, "Status Lead": "Cold"}, {"Business Name": "Chave Virtual - Soc. Media\u00e7\u00e3o Imobili\u00e1ria Unip., Lda.", "Category": "Imobili\u00e1ria", "Address": "R. Jos\u00e9 Ver\u00edssimo Duarte 40A, 2540-110 Bombarral, Portugal", "Rating": 4.6, "# Reviews": 33, "Phone": "+351 934197058", "Website": "http://chavevirtual.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Chave%20Virtual%20-%20Soc.%20Media%C3%A7%C3%A3o%20Imobili%C3%A1ria%20Unip.%2C%20Lda.&query_place_id=ChIJOQMrj_LKGA0RVLmRA8j0JgA", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 34, "Status Lead": "Cold"}, {"Business Name": "Villa Praia Del Rey", "Category": "Vila", "Address": "R. Dona Isabel de Castela 3, 2510-453 Amoreira, Portugal", "Rating": 4.5, "# Reviews": 39, "Phone": null, "Website": "http://www.praia-del-rey-villa.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Villa%20Praia%20Del%20Rey&query_place_id=ChIJ3SrSKqdOHw0RtjszdHsPamI", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 34, "Status Lead": "Cold"}, {"Business Name": "Bom Sucesso Property Management", "Category": "Imobili\u00e1ria", "Address": "Quinta do Bom Sucesso, 2510-661 \u00d3bidos, Portugal", "Rating": 4.5, "# Reviews": 33, "Phone": "+351 935760009", "Website": "http://www.bomsucessopm.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Bom%20Sucesso%20Property%20Management&query_place_id=ChIJ_Zlt4_5MHw0RzLaSuSYgeVc", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 34, "Status Lead": "Cold"}, {"Business Name": "Engel & V\u00f6lkers Portugal West Coast - Real Estate - Imobili\u00e1rio", "Category": "Imobili\u00e1ria", "Address": "Av. Dom Pedro Primeiro 24 Loja A/B, Praia D'el Rey, 2510-451 Amoreira, Portugal", "Rating": 4.5, "# Reviews": 30, "Phone": "+351 927390312", "Website": "https://www.engelvoelkers.com/en-pt/oeste/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Engel%20%26%20V%C3%B6lkers%20Portugal%20West%20Coast%20-%20Real%20Estate%20-%20Imobili%C3%A1rio&query_place_id=ChIJ9YY0xE5PHw0RInakL8lBkTo", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 33, "Status Lead": "Cold"}, {"Business Name": "ACERTOS E MEDIDAS IMOBILI\u00c1RIA", "Category": "Escrit\u00f3rio da empresa", "Address": "R. Vasco da Gama 75 Subloja N, 2520-492 Peniche, Portugal", "Rating": 4.5, "# Reviews": 19, "Phone": "+351 262100685", "Website": "http://www.acertosemedidas.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=ACERTOS%20E%20MEDIDAS%20IMOBILI%C3%81RIA&query_place_id=ChIJW2qRuP1FHw0R1GbpnwO0D_s", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 32, "Status Lead": "Cold"}, {"Business Name": "Suzi Oliveira unipessoal lda", "Category": "Imobili\u00e1ria de alugu\u00e9is por temporada", "Address": "Tv. do Po\u00e7o das Eiras 7, 2525-872 Serra d' El-Rei, Portugal", "Rating": 4.5, "# Reviews": 22, "Phone": "+351 924284527", "Website": "http://www.dwanguesthouses.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Suzi%20Oliveira%20unipessoal%20lda&query_place_id=ChIJk_VJ-ClPHw0R6wGDNpFIfTs", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 32, "Status Lead": "Cold"}, {"Business Name": "YES Concierge Real Estate", "Category": "Imobili\u00e1ria", "Address": "R. Gil Eanes 13, 2510-451 Amoreira, Portugal", "Rating": 4.8, "# Reviews": 16, "Phone": "+351 912682634", "Website": "http://www.yesconciergerealestate.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=YES%20Concierge%20Real%20Estate&query_place_id=ChIJQ2pkg5hOHw0RSrvCN4mrZB8", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 31, "Status Lead": "Cold"}, {"Business Name": "Vetor Sucesso - Imobili\u00e1ria Peniche", "Category": "Imobili\u00e1ria", "Address": "R. Ant\u00f3nio Videira 11, 2520-291 Peniche, Portugal", "Rating": 5.0, "# Reviews": 16, "Phone": "+351 912417037", "Website": "https://vetorsucesso.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Vetor%20Sucesso%20-%20Imobili%C3%A1ria%20Peniche&query_place_id=ChIJCcDi5XBFHw0RaMvDL4QdEbI", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 31, "Status Lead": "Cold"}, {"Business Name": "ComprarCasa Oeste", "Category": "Imobili\u00e1ria", "Address": "R. Dom Afonso Henriques N\u00ba 26 RC Dto, 2540-081 Bombarral, Portugal", "Rating": 4.2, "# Reviews": 37, "Phone": "+351 262609419", "Website": "http://www.comprarcasa.pt/oeste", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=ComprarCasa%20Oeste&query_place_id=ChIJFeHFUfLKGA0RRVjWgK7CVQQ", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 31, "Status Lead": "Cold"}, {"Business Name": "Janela Digital, S.A.", "Category": "Empresa de Software", "Address": "R. da Criatividade 6, 2510-216 \u00d3bidos, Portugal", "Rating": 3.9, "# Reviews": 73, "Phone": "+351 262840460", "Website": "https://www.janeladigital.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Janela%20Digital%2C%20S.A.&query_place_id=ChIJWwUAH4KzGA0R8IkdwTqdNGc", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 30, "Status Lead": "Cold"}, {"Business Name": "Best Houses Portugal - Gest\u00e3o de Alojamento Local", "Category": "Corretora de aluguel de im\u00f3veis", "Address": "Rua Cidade de Seia, Lote 7, Loja 9, Fundos, 2520-303 Peniche, Portugal", "Rating": 4.3, "# Reviews": 30, "Phone": "+351 918345808", "Website": "http://www.besthousesportugal.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Best%20Houses%20Portugal%20-%20Gest%C3%A3o%20de%20Alojamento%20Local&query_place_id=ChIJTWXtWV5JHw0R0Ze3uuAlKIA", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 30, "Status Lead": "Cold"}, {"Business Name": "Veigas Costa Prata - Ag\u00eancia Imobili\u00e1ria / Real Estate Agency", "Category": "Imobili\u00e1ria", "Address": "R. Alexandre Herculano 84, 2520-273 Peniche, Portugal", "Rating": 4.6, "# Reviews": 9, "Phone": "+351 262060664", "Website": "http://www.veigascostaprata.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Veigas%20Costa%20Prata%20-%20Ag%C3%AAncia%20Imobili%C3%A1ria%20%2F%20Real%20Estate%20Agency&query_place_id=ChIJGXZeAvlFHw0RvMKHnG9oXvI", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 29, "Status Lead": "Cold"}, {"Business Name": "PINK by Precious", "Category": "Imobili\u00e1ria", "Address": "R. das \u00c2ncoras 18, 2520-346 Peniche, Portugal", "Rating": 4.6, "# Reviews": 10, "Phone": "+351 916465217", "Website": "https://www.facebook.com/JMG/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=PINK%20by%20Precious&query_place_id=ChIJrc0QNd5FHw0Rx3Cs9lm88wM", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 29, "Status Lead": "Cold"}, {"Business Name": "Fairway and Sea Four Bedroom Upstairs Villa", "Category": "Imobili\u00e1ria de alugu\u00e9is por temporada", "Address": "R. dos Montes 8, 2525-840 Peniche, Portugal", "Rating": 4.8, "# Reviews": 9, "Phone": "+351 927001678", "Website": "https://www.freedomsurfhouse.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Fairway%20and%20Sea%20Four%20Bedroom%20Upstairs%20Villa&query_place_id=ChIJyVwd0WtLHw0RMdP-BY4m8I0", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 29, "Status Lead": "Cold"}, {"Business Name": "Overplace - Sociedade de Media\u00e7\u00e3o Imobili\u00e1ria, Lda \u2022 PENICHE/LOURINH\u00c3", "Category": "Imobili\u00e1ria", "Address": "Tv. dos Mareantes n\u00ba5, 2520-537 Peniche, Portugal", "Rating": 4.0, "# Reviews": 21, "Phone": "+351 918962981", "Website": "http://www.overplace.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Overplace%20-%20Sociedade%20de%20Media%C3%A7%C3%A3o%20Imobili%C3%A1ria%2C%20Lda%20%E2%80%A2%20PENICHE%2FLOURINH%C3%83&query_place_id=ChIJQxuqY8VFHw0RQQ0-8TBR2HQ", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 29, "Status Lead": "Cold"}, {"Business Name": "Mais Consultores #Team Peniche", "Category": "Imobili\u00e1ria", "Address": "Avenida Monsenhor Manuel Bastos, Tv. da Praia da Gamboa, 2520-206 Peniche, Portugal", "Rating": 5.0, "# Reviews": 7, "Phone": null, "Website": "https://www.maisconsultores.pt/imoveis/comprar/moradia/peniche", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Mais%20Consultores%20%23Team%20Peniche&query_place_id=ChIJrR8yfABFHw0RAkXNZrUKG4A", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 28, "Status Lead": "Cold"}, {"Business Name": "Honeysands Residences", "Category": "Complexo de condom\u00ednio", "Address": "R. das Flores, 2530-063 Lourinh\u00e3, Portugal", "Rating": 5.0, "# Reviews": 7, "Phone": "+351 910089422", "Website": "http://www.honeysands-residences.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Honeysands%20Residences&query_place_id=ChIJB9WXYw5JHw0RwPF2voKSUME", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 28, "Status Lead": "Cold"}, {"Business Name": "CASASAPO - Portal Nacional de Imobili\u00e1rio", "Category": "Agente imobili\u00e1rio", "Address": "R. da Criatividade 6, 2510-216 \u00d3bidos, Portugal", "Rating": 3.8, "# Reviews": 46, "Phone": "+351 262840464", "Website": "https://casa.sapo.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=CASASAPO%20-%20Portal%20Nacional%20de%20Imobili%C3%A1rio&query_place_id=ChIJkQ5abYKzGA0RSM8CVOZXUBc", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 28, "Status Lead": "Cold"}, {"Business Name": "Jeanette da Silva - Real Estate", "Category": "Imobili\u00e1ria", "Address": "Lote 80 Aldeia dos Navegadores, R. Bartolomeu Dias, 2510-451, Portugal", "Rating": 5.0, "# Reviews": 5, "Phone": "+351 262909099", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Jeanette%20da%20Silva%20-%20Real%20Estate&query_place_id=ChIJqYBfYaJOHw0RHfc4XZBA7do", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 27, "Status Lead": "Cold"}, {"Business Name": "Andr\u00e9 Ganh\u00e3o - Consultor Imobili\u00e1rio", "Category": "Agente imobili\u00e1rio", "Address": "R. dos Ganh\u00f5es, 2510-664, Portugal", "Rating": 5.0, "# Reviews": 5, "Phone": "+351 914099382", "Website": "https://andreganhao.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Andr%C3%A9%20Ganh%C3%A3o%20-%20Consultor%20Imobili%C3%A1rio&query_place_id=ChIJH53ynTNut2kROBnwknGFBbg", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 27, "Status Lead": "Cold"}, {"Business Name": "Cosy&B Residence partner", "Category": "Companhia gestora de propriedade", "Address": "R. Dom Lu\u00eds de Ata\u00edde n\u00b0 128, 2520-408 Peniche, Portugal", "Rating": 5.0, "# Reviews": 5, "Phone": "+351 962098541", "Website": "https://www.cosynb.com/?utm_source=google&utm_medium=wix_google_business_profile&utm_campaign=3832810361779824579", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Cosy%26B%20Residence%20partner&query_place_id=ChIJiSej64FFHw0R9cWyN1n5JUU", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 27, "Status Lead": "Cold"}, {"Business Name": "Villa Mar e Lagoa", "Category": "Imobili\u00e1ria de alugu\u00e9is por temporada", "Address": "Rua do Vale da Ponte 10, Travessa da Eira 4, 2500-507 Foz do Arelho, Portugal", "Rating": 5.0, "# Reviews": 5, "Phone": "+32 496 99 43 22", "Website": "http://www.vakantievilla-portugal.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Villa%20Mar%20e%20Lagoa&query_place_id=ChIJ88ZPi-RNHw0RDYiosmjHQa8", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 27, "Status Lead": "Cold"}, {"Business Name": "Ana Lima Real Estate - Consultora Imobili\u00e1ria", "Category": "Imobili\u00e1ria", "Address": "R. Vasco da Gama 75 Gabinete 1, 2520-466 Peniche, Portugal", "Rating": 5.0, "# Reviews": 6, "Phone": "+351 963601798", "Website": "https://www.analima.maismls.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Ana%20Lima%20Real%20Estate%20-%20Consultora%20Imobili%C3%A1ria&query_place_id=ChIJBR0tzotHHw0RwoEM2_zTGFs", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 27, "Status Lead": "Cold"}, {"Business Name": "Downtown Peniche Apartment", "Category": "Apartamento para aluguel de temporada", "Address": "R. Ant\u00f3nio Maria Oliveira 51, 2520-608 Peniche, Portugal", "Rating": 5.0, "# Reviews": 6, "Phone": null, "Website": "https://balealhome.com/rooms/downtown-peniche-apartment", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Downtown%20Peniche%20Apartment&query_place_id=ChIJL6hnsTZHHw0RMDGqFmFmNtQ", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 27, "Status Lead": "Cold"}, {"Business Name": "Casa Costa Prata", "Category": "Imobili\u00e1ria de alugu\u00e9is por temporada", "Address": "R. da Lagoa 3, 2500-590 Nadadouro, Portugal", "Rating": 4.1, "# Reviews": 12, "Phone": "+351 913796001", "Website": "https://casacostaprata.nl/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Casa%20Costa%20Prata&query_place_id=ChIJ0VdImihNHw0R3Qyi3TEQ-to", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 27, "Status Lead": "Cold"}, {"Business Name": "Cenario Oeste - Portugal Silver Coast Properties\u200e", "Category": "Imobili\u00e1ria", "Address": "Av. Mariano Calado 18, 2520-225 Peniche, Portugal", "Rating": 4.1, "# Reviews": 9, "Phone": "+351 262185560", "Website": "http://www.cenario-oeste.com/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Cenario%20Oeste%20-%20Portugal%20Silver%20Coast%20Properties%E2%80%8E&query_place_id=ChIJXxaUgPBFHw0RD9GPLqbKuR0", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 26, "Status Lead": "Cold"}, {"Business Name": "Ocean Pearl Rental Apartment Baleal Beach", "Category": "Imobili\u00e1ria de alugu\u00e9is por temporada", "Address": "Av. do Mar 86-106, 2520-101 Ferrel, Portugal", "Rating": 5.0, "# Reviews": 4, "Phone": "+1 416-318-5724", "Website": null, "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Ocean%20Pearl%20Rental%20Apartment%20Baleal%20Beach&query_place_id=ChIJQ4_UivBPHw0RJuAHyI1AZkM", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 26, "Status Lead": "Cold"}, {"Business Name": "Obidos house with private pool", "Category": "Ag\u00eancia de aluguel de cabanas", "Address": "Travessa Duque De Wellington 9, 2510-050 \u00d3bidos, Portugal", "Rating": 4.4, "# Reviews": 8, "Phone": "+32 475 53 04 30", "Website": "http://www.obidos.house/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Obidos%20house%20with%20private%20pool&query_place_id=ChIJK8Ck5D6zGA0R2wc037jsBuw", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 25, "Status Lead": "Cold"}, {"Business Name": "Corner Real Estate", "Category": "Imobili\u00e1ria", "Address": "Av. Dr. Joaquim de Albuquerque 38-B, 2540-135 Bombarral, Portugal", "Rating": 4.1, "# Reviews": 7, "Phone": "+351 919109268", "Website": "https://cornerealestate.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=Corner%20Real%20Estate&query_place_id=ChIJyT-Of2u1GA0RsM9yyavnxw4", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 25, "Status Lead": "Cold"}, {"Business Name": "ComprarCasa - Imobili\u00e1ria | Caldas da Rainha", "Category": "Imobili\u00e1ria", "Address": "R. Vitorino Fr\u00f3is 50 R/C Esq, Caldas da Rainha, Portugal", "Rating": 3.9, "# Reviews": 10, "Phone": "+351 262835298", "Website": "http://www.comprarcasa.pt/caldasdarainha", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=ComprarCasa%20-%20Imobili%C3%A1ria%20%7C%20Caldas%20da%20Rainha&query_place_id=ChIJAQidGXuzGA0R6dJ0n30uKhY", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 22, "Status Lead": "Cold"}, {"Business Name": "CV Management Gest\u00e3o de Propriedades", "Category": "Companhia gestora de propriedade", "Address": "R. 4 de Agosto N66, 2525-814 Serra d' El-Rei, Portugal", "Rating": 3.9, "# Reviews": 9, "Phone": "+351 939312155", "Website": "http://www.cvmanagement.pt/", "Google Maps URL": "https://www.google.com/maps/search/?api=1&query=CV%20Management%20Gest%C3%A3o%20de%20Propriedades&query_place_id=ChIJLRPqQNBLHw0RyokArm6npg0", "Takeaway Signal": false, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Posts": null, "Bio": null, "Score AI Potencial": 22, "Status Lead": "Cold"}];
+var currentIdx=null;
+var statuses=DATA.map(function(r){return r['Status Lead']||'Cold';});
+function filter(){
+  var q=document.getElementById('search').value.toLowerCase();
+  var st=document.getElementById('filterStatus').value;
+  var ig=document.getElementById('filterIG').value;
+  var sort=document.getElementById('sortBy').value;
+  var rows=Array.from(document.querySelectorAll('#tbody .row'));
+  var visible=rows.filter(function(r){
+    if(q&&r.dataset.name.toLowerCase().indexOf(q)===-1)return false;
+    if(st&&r.dataset.status!==st)return false;
+    if(ig&&r.dataset.ig!==ig)return false;
+    return true;
+  });
+  rows.forEach(function(r){r.style.display='none';});
+  var sortMap={score:function(a,b){return(DATA[b.rowIndex-1]['Score AI Potencial']||0)-(DATA[a.rowIndex-1]['Score AI Potencial']||0);},reviews:function(a,b){return(DATA[b.rowIndex-1]['# Reviews']||0)-(DATA[a.rowIndex-1]['# Reviews']||0);},followers:function(a,b){return(DATA[b.rowIndex-1]['Seguidores']||0)-(DATA[a.rowIndex-1]['Seguidores']||0);}};
+  visible.sort(sortMap[sort]);
+  var tbody=document.getElementById('tbody');
+  visible.forEach(function(r){r.style.display='';tbody.appendChild(r);});
+}
+function openModal(i){
+  currentIdx=i;var r=DATA[i];
+  document.getElementById('m-name').textContent=r['Business Name']||'';
+  var rows=[['Category',r['Category']],['Address',r['Address']],['Rating',r['Rating']?r['Rating']+' ⭐':'—'],['Reviews',r['# Reviews']?r['# Reviews'].toLocaleString('pt'):'—'],['Score AI',r['Score AI Potencial']],['Telefone',r['Phone']||'—'],['Instagram',r['Instagram Handle']||'—'],['Seguidores',r['Seguidores']?r['Seguidores'].toLocaleString('pt'):'—'],['Posts',r['Posts']||'—'],['Website',r['Website']?'<a href="'+r['Website']+'" target="_blank">'+r['Website']+'</a>':'—']];
+  document.getElementById('m-rows').innerHTML=rows.map(function(x){return'<div class="modal-row"><span class="label">'+x[0]+'</span><span class="val">'+x[1]+'</span></div>';}).join('');
+  var bio=r['Bio'];var bioEl=document.getElementById('m-bio');
+  if(bio){bioEl.textContent=bio;bioEl.style.display='block';}else{bioEl.style.display='none';}
+  document.getElementById('m-status').value=statuses[i];
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(e){if(e.target===document.getElementById('modal'))document.getElementById('modal').classList.remove('open');}
+function updateStatus(){
+  if(currentIdx===null)return;
+  var st=document.getElementById('m-status').value;
+  statuses[currentIdx]=st;
+  var rows=document.querySelectorAll('#tbody .row');
+  rows[currentIdx].dataset.status=st;
+  var colors={Cold:'#6b7280',Contacted:'#3b82f6',Interested:'#f59e0b',Client:'#22c55e'};
+  var badges=rows[currentIdx].querySelectorAll('span');
+  var last=badges[badges.length-1];
+  last.style.background=colors[st]||'#6b7280';last.textContent=st;
+}
+filter();
+</script>
+</body>
+</html>

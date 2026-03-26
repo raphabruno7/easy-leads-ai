@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Surf Schools Peniche</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#ffffff;color:#334155;font-size:14px}
+a{color:#3b82f6;text-decoration:none}
+a:hover{text-decoration:underline}
+.bar{position:sticky;top:0;background:#ffffff;border-bottom:1px solid #e2e8f0;padding:14px 24px;z-index:10;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.bar-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+h1{font-size:18px;font-weight:700;color:#0f172a}
+.sub{font-size:11px;color:#64748b;margin-top:2px}
+.stats{display:flex;gap:24px}
+.sv{font-size:20px;font-weight:700;color:#0f172a}
+.sl2{font-size:11px;color:#94a3b8;margin-top:1px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input,select{background:#f8fafc;border:1px solid #e2e8f0;color:#334155;border-radius:8px;padding:7px 12px;font-size:13px;outline:none}
+input:focus,select:focus{border-color:#3b82f6}
+input::placeholder{color:#94a3b8}
+#search{width:220px}
+#count{font-size:12px;color:#64748b;margin-left:4px}
+.wrap{padding:0 24px 60px}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:10px 12px;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap;position:sticky;top:0;background:#ffffff}
+td{padding:10px 12px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+tr.row{cursor:pointer}
+tr.row:hover td{background:#f8fafc}
+tr.hidden{display:none}
+.name{font-weight:600;color:#0f172a;line-height:1.3}
+.bio{font-size:11px;color:#94a3b8;margin-top:2px}
+.handle{font-family:monospace;font-size:12px;color:#3b82f6}
+.num{font-weight:600;color:#0f172a;text-align:right}
+.num-sm{color:#64748b;text-align:right}
+.tc{text-align:center}
+.dim{color:#94a3b8}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600}
+.sh{background:#dcfce7;color:#16a34a}
+.sm{background:#fef3c7;color:#d97706}
+.sl{background:#f1f5f9;color:#64748b}
+.sc{background:#eff6ff;color:#3b82f6}
+.sco{background:#f3e8ff;color:#7c3aed}
+.sp{background:#fef3c7;color:#d97706}
+.sf{background:#dcfce7;color:#16a34a}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.3);backdrop-filter:blur(4px);z-index:50;display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#ffffff;border-radius:14px;padding:28px;max-width:560px;width:90%;max-height:90vh;overflow-y:auto;border:1px solid #e2e8f0;box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.modal h2{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:4px}
+.mrow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.mrow:last-child{border-bottom:none}
+.ml{color:#64748b}
+.mv{color:#0f172a;text-align:right}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.metric{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center}
+.mn{font-size:20px;font-weight:700;color:#0f172a}
+.mlb{font-size:11px;color:#94a3b8;margin-top:3px}
+.biobox{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;font-size:13px;color:#334155;line-height:1.6;margin:12px 0}
+.btn-ig{background:#3b82f6;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+.mfooter{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-top">
+    <div><a href="index.html" style="font-size:13px;color:#3b82f6;text-decoration:none;font-weight:500">&larr; Back</a><h1>Surf Schools</h1><div class="sub">Lead prospecting pipeline &mdash; Peniche area</div></div>
+    <div class="stats">
+      <div><div class="sv" id="s-total">77</div><div class="sl2">leads</div></div>
+      <div><div class="sv" id="s-insta">60</div><div class="sl2">instagram</div></div>
+      <div><div class="sv">72</div><div class="sl2">score médio</div></div>
+      <div><div class="sv" id="s-cold">77</div><div class="sl2">cold</div></div>
+    </div>
+  </div>
+  <div class="filters">
+    <input id="search" type="text" placeholder="Search..." oninput="applyFilters()">
+    <select id="filterStatus" onchange="applyFilters()">
+      <option value="">All statuses</option>
+      <option value="Cold">Cold</option>
+      <option value="Contactado">Contactado</option>
+      <option value="Proposta">Proposta</option>
+      <option value="Fechado">Fechado</option>
+    </select>
+    <select id="filterInsta" onchange="applyFilters()">
+      <option value="">With and without Instagram</option>
+      <option value="yes">With Instagram</option>
+      <option value="no">Without Instagram</option>
+    </select>
+    <span id="count">77 leads</span>
+  </div>
+</div>
+
+<div class="wrap">
+<table>
+<thead><tr>
+  <th>Business</th><th>Instagram</th>
+  <th style="text-align:right">Followers</th>
+  <th style="text-align:right">Posts</th>
+  <th style="text-align:right">Rating</th>
+  <th style="text-align:center">Score</th>
+  <th style="text-align:center">Status</th>
+  <th>Phone</th>
+</tr></thead>
+<tbody id="tbody">
+<tr class="row" data-name="peniche surf camp" data-handle="@penichesurfcamp" data-status="Cold" data-ig="yes" onclick="openModal(0)">
+<td><div class="name">Peniche Surf Camp</div><div class="bio">Surf camp based in Peniche, Portugal  Your smile is our goal!</div></td>
+<td><a class="handle" href="https://instagram.com/penichesurfcamp" target="_blank" onclick="event.stopPropagation()">@penichesurfcamp</a> <b style=color:#3b82f6>✓</b></td>
+<td class="num">13.0k</td>
+<td class="num-sm">3.3k</td>
+<td class="num-sm">⭐ 4,5</td>
+<td class="tc"><span class="badge sh">90</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 962336295</td>
+</tr><tr class="row" data-name="magnus &amp; friends" data-handle="@magnusandfriends" data-status="Cold" data-ig="yes" onclick="openModal(1)">
+<td><div class="name">Magnus &amp; friends</div><div class="bio">Socialt surfcamp för alla nivåer och åldrar. Surfa med oss i Port…</div></td>
+<td><a class="handle" href="https://instagram.com/magnusandfriends" target="_blank" onclick="event.stopPropagation()">@magnusandfriends</a> <b style=color:#3b82f6>✓</b></td>
+<td class="num">11.9k</td>
+<td class="num-sm">679</td>
+<td class="num-sm">⭐ 4,7</td>
+<td class="tc"><span class="badge sh">90</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px"></td>
+</tr><tr class="row" data-name="the salty surf &amp; yoga - peniche portugal" data-handle="@thesalty__" data-status="Cold" data-ig="yes" onclick="openModal(2)">
+<td><div class="name">The Salty Surf &amp; Yoga - Peniche Portugal</div><div class="bio">Where wellness is social &amp; escapes are shared  Portugal | Sri Lan…</div></td>
+<td><a class="handle" href="https://instagram.com/thesalty__" target="_blank" onclick="event.stopPropagation()">@thesalty__</a> <b style=color:#3b82f6>✓</b></td>
+<td class="num">123.6k</td>
+<td class="num-sm">1.8k</td>
+<td class="num-sm">⭐ 4,4</td>
+<td class="tc"><span class="badge sh">90</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 920077446</td>
+</tr><tr class="row" data-name="the armoury" data-handle="@thearmourynyc" data-status="Cold" data-ig="yes" onclick="openModal(3)">
+<td><div class="name">The Armoury</div><div class="bio">+1.646.613.7613 International Classic Men's Clothing Since 2010. …</div></td>
+<td><a class="handle" href="https://instagram.com/thearmourynyc" target="_blank" onclick="event.stopPropagation()">@thearmourynyc</a></td>
+<td class="num">130.2k</td>
+<td class="num-sm">2.8k</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">80</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 915708210</td>
+</tr><tr class="row" data-name="58 surf peniche" data-handle="@58surf" data-status="Cold" data-ig="yes" onclick="openModal(4)">
+<td><div class="name">58 Surf Peniche</div><div class="bio">#WeSurfEveryday Peniche | Matosinhos | Ericeira | Caparica | 58su…</div></td>
+<td><a class="handle" href="https://instagram.com/58surf" target="_blank" onclick="event.stopPropagation()">@58surf</a></td>
+<td class="num">29.9k</td>
+<td class="num-sm">2.1k</td>
+<td class="num-sm">⭐ 4,3</td>
+<td class="tc"><span class="badge sh">80</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 919786082</td>
+</tr><tr class="row" data-name="surfers lodge peniche" data-handle="@surferslodgepeniche" data-status="Cold" data-ig="yes" onclick="openModal(5)">
+<td><div class="name">Surfers Lodge Peniche</div><div class="bio">Casual Luxury Lifestyle Lodge | Surf School for surfers of all le…</div></td>
+<td><a class="handle" href="https://instagram.com/surferslodgepeniche" target="_blank" onclick="event.stopPropagation()">@surferslodgepeniche</a></td>
+<td class="num">15.6k</td>
+<td class="num-sm">2.7k</td>
+<td class="num-sm">⭐ 4,5</td>
+<td class="tc"><span class="badge sh">80</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 262700030</td>
+</tr><tr class="row" data-name="praia do medão grande" data-handle="@crashgrafia" data-status="Cold" data-ig="yes" onclick="openModal(6)">
+<td><div class="name">Praia do Medão Grande</div><div class="bio">Surf Photographer &amp; Filmmaker  🇵🇹 From Peniche Supertubos</div></td>
+<td><a class="handle" href="https://instagram.com/crashgrafia" target="_blank" onclick="event.stopPropagation()">@crashgrafia</a></td>
+<td class="num">12.3k</td>
+<td class="num-sm">690</td>
+<td class="num-sm">⭐ 4,6</td>
+<td class="tc"><span class="badge sh">80</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 961316204</td>
+</tr><tr class="row" data-name="hangfive surf &amp; coffee" data-handle="@hangfivebaleal" data-status="Cold" data-ig="yes" onclick="openModal(7)">
+<td><div class="name">Hangfive Surf &amp; Coffee</div><div class="bio">Concept Store | Coffee | Surf Club📍Baleal</div></td>
+<td><a class="handle" href="https://instagram.com/hangfivebaleal" target="_blank" onclick="event.stopPropagation()">@hangfivebaleal</a></td>
+<td class="num">12.1k</td>
+<td class="num-sm">2.5k</td>
+<td class="num-sm">⭐ 4,8</td>
+<td class="tc"><span class="badge sh">80</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 947977142</td>
+</tr><tr class="row" data-name="peniche surf lodge and surf school no.2" data-handle="@surferslodgepeniche" data-status="Cold" data-ig="yes" onclick="openModal(8)">
+<td><div class="name">Peniche Surf Lodge and Surf School No.2</div><div class="bio">Casual Luxury Lifestyle Lodge | Surf School for surfers of all le…</div></td>
+<td><a class="handle" href="https://instagram.com/surferslodgepeniche" target="_blank" onclick="event.stopPropagation()">@surferslodgepeniche</a></td>
+<td class="num">15.6k</td>
+<td class="num-sm">2.7k</td>
+<td class="num-sm">⭐ 4,7</td>
+<td class="tc"><span class="badge sh">80</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 912590574</td>
+</tr><tr class="row" data-name="baleal surf camp - peniche, portugal" data-handle="@balealsurfcamp" data-status="Cold" data-ig="yes" onclick="openModal(9)">
+<td><div class="name">Baleal Surf Camp - Peniche, Portugal</div><div class="bio">Embrace the surfing spirit  🏄‍✌☀🏖 The Original Portuguese Surf Ca…</div></td>
+<td><a class="handle" href="https://instagram.com/balealsurfcamp" target="_blank" onclick="event.stopPropagation()">@balealsurfcamp</a></td>
+<td class="num">8.5k</td>
+<td class="num-sm">533</td>
+<td class="num-sm">⭐ 4,7</td>
+<td class="tc"><span class="badge sh">79</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 961316204</td>
+</tr><tr class="row" data-name="the journey store" data-handle="@thejourneysurfstore" data-status="Cold" data-ig="yes" onclick="openModal(10)">
+<td><div class="name">The Journey Store</div><div class="bio">Home is Everywhere Baleal - Peniche</div></td>
+<td><a class="handle" href="https://instagram.com/thejourneysurfstore" target="_blank" onclick="event.stopPropagation()">@thejourneysurfstore</a></td>
+<td class="num">8.0k</td>
+<td class="num-sm">770</td>
+<td class="num-sm">⭐ 4,8</td>
+<td class="tc"><span class="badge sh">79</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 919533456</td>
+</tr><tr class="row" data-name="kohola surf house" data-handle="@koholasurf" data-status="Cold" data-ig="yes" onclick="openModal(11)">
+<td><div class="name">KoHoLa Surf House</div><div class="bio">✖️Surf, Chill &amp; Good Vibes in Portugal &amp; on Fuerteventura✖️Next #…</div></td>
+<td><a class="handle" href="https://instagram.com/koholasurf" target="_blank" onclick="event.stopPropagation()">@koholasurf</a></td>
+<td class="num">9.6k</td>
+<td class="num-sm">263</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">79</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 997510125</td>
+</tr><tr class="row" data-name="ferrel surf house" data-handle="@ferrelsurfhouse" data-status="Cold" data-ig="yes" onclick="openModal(12)">
+<td><div class="name">Ferrel Surf House</div><div class="bio">SURF, WAVES &amp; GOOD VIBES in Peniche, Portugal🏄🏽‍♀️ Accomodation |…</div></td>
+<td><a class="handle" href="https://instagram.com/ferrelsurfhouse" target="_blank" onclick="event.stopPropagation()">@ferrelsurfhouse</a></td>
+<td class="num">6.5k</td>
+<td class="num-sm">535</td>
+<td class="num-sm">⭐ 4,5</td>
+<td class="tc"><span class="badge sh">78</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 925013006</td>
+</tr><tr class="row" data-name="surf it easy" data-handle="@surf.it.easy" data-status="Cold" data-ig="yes" onclick="openModal(13)">
+<td><div class="name">Surf it Easy</div><div class="bio">Surf School | Surfskate Technical Training | Skate School | All L…</div></td>
+<td><a class="handle" href="https://instagram.com/surf.it.easy" target="_blank" onclick="event.stopPropagation()">@surf.it.easy</a></td>
+<td class="num">6.6k</td>
+<td class="num-sm">311</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">78</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 910285821</td>
+</tr><tr class="row" data-name="baleal surf ranch" data-handle="@balealsurfranch" data-status="Cold" data-ig="yes" onclick="openModal(14)">
+<td><div class="name">Baleal Surf Ranch</div><div class="bio">🏄🏽‍♂️ Surf lessons, Rentals &amp; Beach house  🌴 Chill vibes, sunset …</div></td>
+<td><a class="handle" href="https://instagram.com/balealsurfranch" target="_blank" onclick="event.stopPropagation()">@balealsurfranch</a></td>
+<td class="num">5.3k</td>
+<td class="num-sm">120</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">77</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 961316204</td>
+</tr><tr class="row" data-name="escola surf peniche" data-handle="@escolasurfpeniche" data-status="Cold" data-ig="yes" onclick="openModal(15)">
+<td><div class="name">Escola Surf Peniche</div><div class="bio">Where your dreams come true. Surf lessons, rentals and accommodat…</div></td>
+<td><a class="handle" href="https://instagram.com/escolasurfpeniche" target="_blank" onclick="event.stopPropagation()">@escolasurfpeniche</a></td>
+<td class="num">5.4k</td>
+<td class="num-sm">878</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">77</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 262184593</td>
+</tr><tr class="row" data-name="pksc | rentals &amp; surf school" data-handle="@pksc.surfcamp" data-status="Cold" data-ig="yes" onclick="openModal(16)">
+<td><div class="name">PKSC | Rentals &amp; Surf School</div><div class="bio">🌊 Surf Camp &amp; School in Peniche  🏄‍♂️ Designed to create confiden…</div></td>
+<td><a class="handle" href="https://instagram.com/pksc.surfcamp" target="_blank" onclick="event.stopPropagation()">@pksc.surfcamp</a></td>
+<td class="num">4.9k</td>
+<td class="num-sm">1.3k</td>
+<td class="num-sm">⭐ 4,2</td>
+<td class="tc"><span class="badge sh">76</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 919424951</td>
+</tr><tr class="row" data-name="ride surf resort &amp; spa" data-handle="@ridesurfresort_peniche" data-status="Cold" data-ig="yes" onclick="openModal(17)">
+<td><div class="name">RIDE Surf Resort &amp; Spa</div><div class="bio">🍃 Hotel, Surf, Spa &amp; Restaurant 📍3 min walk to the baleal beaches…</div></td>
+<td><a class="handle" href="https://instagram.com/ridesurfresort_peniche" target="_blank" onclick="event.stopPropagation()">@ridesurfresort_peniche</a></td>
+<td class="num">4.5k</td>
+<td class="num-sm">482</td>
+<td class="num-sm">⭐ 4,5</td>
+<td class="tc"><span class="badge sh">76</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 262247350</td>
+</tr><tr class="row" data-name="surfers lab" data-handle="@surferslab" data-status="Cold" data-ig="yes" onclick="openModal(18)">
+<td><div class="name">Surfers Lab</div><div class="bio">#seeyouinthewater</div></td>
+<td><a class="handle" href="https://instagram.com/surferslab" target="_blank" onclick="event.stopPropagation()">@surferslab</a></td>
+<td class="num">4.7k</td>
+<td class="num-sm">798</td>
+<td class="num-sm">⭐ 4,3</td>
+<td class="tc"><span class="badge sh">76</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 262750331</td>
+</tr><tr class="row" data-name="surfcastle" data-handle="@surfcastle" data-status="Cold" data-ig="yes" onclick="openModal(19)">
+<td><div class="name">Surfcastle</div><div class="bio">Boutique hotel and surf school in Peniche, Portugal.</div></td>
+<td><a class="handle" href="https://instagram.com/surfcastle" target="_blank" onclick="event.stopPropagation()">@surfcastle</a></td>
+<td class="num">4.0k</td>
+<td class="num-sm">574</td>
+<td class="num-sm">⭐ 4,9</td>
+<td class="tc"><span class="badge sh">76</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 912526151</td>
+</tr><tr class="row" data-name="peniche kite &amp; surf camp" data-handle="@pksc.surfcamp" data-status="Cold" data-ig="yes" onclick="openModal(20)">
+<td><div class="name">Peniche Kite &amp; Surf Camp</div><div class="bio">🌊 Surf Camp &amp; School in Peniche  🏄‍♂️ Designed to create confiden…</div></td>
+<td><a class="handle" href="https://instagram.com/pksc.surfcamp" target="_blank" onclick="event.stopPropagation()">@pksc.surfcamp</a></td>
+<td class="num">4.9k</td>
+<td class="num-sm">1.3k</td>
+<td class="num-sm">⭐ 3,0</td>
+<td class="tc"><span class="badge sh">76</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 291345503</td>
+</tr><tr class="row" data-name="pksc surf camp | surf house" data-handle="@pksc.surfcamp" data-status="Cold" data-ig="yes" onclick="openModal(21)">
+<td><div class="name">PKSC Surf Camp | Surf House</div><div class="bio">🌊 Surf Camp &amp; School in Peniche  🏄‍♂️ Designed to create confiden…</div></td>
+<td><a class="handle" href="https://instagram.com/pksc.surfcamp" target="_blank" onclick="event.stopPropagation()">@pksc.surfcamp</a></td>
+<td class="num">4.9k</td>
+<td class="num-sm">1.3k</td>
+<td class="num-sm">⭐ 4,5</td>
+<td class="tc"><span class="badge sh">76</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 962336295</td>
+</tr><tr class="row" data-name="peniche surfing clube" data-handle="@penichesurfingclube" data-status="Cold" data-ig="yes" onclick="openModal(22)">
+<td><div class="name">Peniche Surfing Clube</div><div class="bio">http://www.ppsc.pt/</div></td>
+<td><a class="handle" href="https://instagram.com/penichesurfingclube" target="_blank" onclick="event.stopPropagation()">@penichesurfingclube</a></td>
+<td class="num">3.8k</td>
+<td class="num-sm">525</td>
+<td class="num-sm">⭐ 4,4</td>
+<td class="tc"><span class="badge sh">75</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 919786082</td>
+</tr><tr class="row" data-name="truster stoked club" data-handle="@truster_stokedclub" data-status="Cold" data-ig="yes" onclick="openModal(23)">
+<td><div class="name">Truster Stoked Club</div><div class="bio">🏄 | meaningful surf experiences | surf coaching | private &amp; group…</div></td>
+<td><a class="handle" href="https://instagram.com/truster_stokedclub" target="_blank" onclick="event.stopPropagation()">@truster_stokedclub</a></td>
+<td class="num">3.9k</td>
+<td class="num-sm">457</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">75</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 962336295</td>
+</tr><tr class="row" data-name="rip curl outlet" data-handle="@ripcurl_santaana" data-status="Cold" data-ig="yes" onclick="openModal(24)">
+<td><div class="name">Rip Curl Outlet</div><div class="bio">(714) 617-3700  Hours 9:00am - 7:00pm</div></td>
+<td><a class="handle" href="https://instagram.com/ripcurl_santaana" target="_blank" onclick="event.stopPropagation()">@ripcurl_santaana</a></td>
+<td class="num">3.3k</td>
+<td class="num-sm">571</td>
+<td class="num-sm">⭐ 3,9</td>
+<td class="tc"><span class="badge sh">75</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 262784119</td>
+</tr><tr class="row" data-name="nika paddle - surf camp | sup academy in peniche" data-handle="@nikapaddlesurfcamp" data-status="Cold" data-ig="yes" onclick="openModal(25)">
+<td><div class="name">Nika Paddle - Surf Camp | Sup Academy in Peniche</div><div class="bio">🌊 Sup Surf &amp; Yoga Retreat 📧 info@nikapaddlesurfcamp.com 📞 +351927…</div></td>
+<td><a class="handle" href="https://instagram.com/nikapaddlesurfcamp" target="_blank" onclick="event.stopPropagation()">@nikapaddlesurfcamp</a></td>
+<td class="num">3.4k</td>
+<td class="num-sm">378</td>
+<td class="num-sm">⭐ 4,9</td>
+<td class="tc"><span class="badge sh">75</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 927625849</td>
+</tr><tr class="row" data-name="alex surf school- baleal, peniche" data-handle="@alexsurfschool" data-status="Cold" data-ig="yes" onclick="openModal(26)">
+<td><div class="name">Alex surf school- Baleal, Peniche</div><div class="bio">Family business with 22 years experience in Surf instruction 🥇 To…</div></td>
+<td><a class="handle" href="https://instagram.com/alexsurfschool" target="_blank" onclick="event.stopPropagation()">@alexsurfschool</a></td>
+<td class="num">3.4k</td>
+<td class="num-sm">507</td>
+<td class="num-sm">⭐ 4,7</td>
+<td class="tc"><span class="badge sh">75</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 278886685</td>
+</tr><tr class="row" data-name="silver coast surf school baleal - peniche" data-handle="@surfingsilvercoast" data-status="Cold" data-ig="yes" onclick="openModal(27)">
+<td><div class="name">Silver Coast Surf School Baleal - Peniche</div><div class="bio">💎 Unforgettable surfing experience 💎 Group and private lessons fo…</div></td>
+<td><a class="handle" href="https://instagram.com/surfingsilvercoast" target="_blank" onclick="event.stopPropagation()">@surfingsilvercoast</a></td>
+<td class="num">2.6k</td>
+<td class="num-sm">781</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">74</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 913251231</td>
+</tr><tr class="row" data-name="special surf 78 - peniche surf school / rentals" data-handle="@specialsurf78" data-status="Cold" data-ig="yes" onclick="openModal(28)">
+<td><div class="name">Special Surf 78 - Peniche Surf School / Rentals</div><div class="bio">Local School 🌊 Surflessons | Rentals | Surf Therapy 🏄 To share th…</div></td>
+<td><a class="handle" href="https://instagram.com/specialsurf78" target="_blank" onclick="event.stopPropagation()">@specialsurf78</a></td>
+<td class="num">2.3k</td>
+<td class="num-sm">1.1k</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">73</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 233946281</td>
+</tr><tr class="row" data-name="naturexperience" data-handle="@naturexperience" data-status="Cold" data-ig="yes" onclick="openModal(29)">
+<td><div class="name">NATUREXPERIENCE</div><div class="bio">Your Experience Starts Here! 🏄‍♂️ 𝗦𝘂𝗿𝗳 𝗦𝗰𝗵𝗼𝗼𝗹 🧗‍♀️ 𝗥𝗼𝗰𝗸 𝗖𝗹𝗶𝗺𝗯𝗶𝗻𝗴 …</div></td>
+<td><a class="handle" href="https://instagram.com/naturexperience" target="_blank" onclick="event.stopPropagation()">@naturexperience</a></td>
+<td class="num">2.2k</td>
+<td class="num-sm">1.6k</td>
+<td class="num-sm">⭐ 4,8</td>
+<td class="tc"><span class="badge sh">73</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 917418643</td>
+</tr><tr class="row" data-name="shark's lodge" data-handle="@sharkslodge" data-status="Cold" data-ig="yes" onclick="openModal(30)">
+<td><div class="name">Shark's Lodge</div><div class="bio">🔥 7-Day RESET 🇵🇹 €1,500 All-In 🏋️ CrossFit 🧘Yoga 🏄 Accredited Tra…</div></td>
+<td><a class="handle" href="https://instagram.com/sharkslodge" target="_blank" onclick="event.stopPropagation()">@sharkslodge</a></td>
+<td class="num">2.1k</td>
+<td class="num-sm">238</td>
+<td class="num-sm">⭐ 4,5</td>
+<td class="tc"><span class="badge sh">73</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 910433605</td>
+</tr><tr class="row" data-name="soulsurfcamp portugal" data-handle="@soulsurfdude" data-status="Cold" data-ig="yes" onclick="openModal(31)">
+<td><div class="name">SoulSurfcamp Portugal</div><div class="bio">SoulSurfcamp Portugal ___________________________________________…</div></td>
+<td><a class="handle" href="https://instagram.com/soulsurfdude" target="_blank" onclick="event.stopPropagation()">@soulsurfdude</a></td>
+<td class="num">1.6k</td>
+<td class="num-sm">481</td>
+<td class="num-sm">⭐ 4,9</td>
+<td class="tc"><span class="badge sh">72</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 962336295</td>
+</tr><tr class="row" data-name="g3store surf center" data-handle="@g3storesurfcenter" data-status="Cold" data-ig="yes" onclick="openModal(32)">
+<td><div class="name">G3Store Surf Center</div><div class="bio">MORE THAN A SURF SCHOOL,YOUR SURF FAMILY 🏄 Surf Lessons | Rentals…</div></td>
+<td><a class="handle" href="https://instagram.com/g3storesurfcenter" target="_blank" onclick="event.stopPropagation()">@g3storesurfcenter</a></td>
+<td class="num">1.8k</td>
+<td class="num-sm">436</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">72</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 262112155</td>
+</tr><tr class="row" data-name="filipe anjos - private surf coach - baleal, peniche &amp; óbidos" data-handle="@filipeanjos.coaching" data-status="Cold" data-ig="yes" onclick="openModal(33)">
+<td><div class="name">Filipe Anjos - Private Surf Coach - Baleal, Peniche &amp; Óbidos</div><div class="bio">Elite 1:1 Surf Coaching | All Levels Specialized in Wave Reading …</div></td>
+<td><a class="handle" href="https://instagram.com/filipeanjos.coaching" target="_blank" onclick="event.stopPropagation()">@filipeanjos.coaching</a></td>
+<td class="num">1.8k</td>
+<td class="num-sm">398</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">72</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 937932468</td>
+</tr><tr class="row" data-name="surf mama school" data-handle="@surfmamaschool" data-status="Cold" data-ig="yes" onclick="openModal(34)">
+<td><div class="name">Surf Mama School</div><div class="bio">Surf Mama School                                      Peniche , P…</div></td>
+<td><a class="handle" href="https://instagram.com/surfmamaschool" target="_blank" onclick="event.stopPropagation()">@surfmamaschool</a></td>
+<td class="num">1.3k</td>
+<td class="num-sm">227</td>
+<td class="num-sm">⭐ 4,9</td>
+<td class="tc"><span class="badge sh">71</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 934423648</td>
+</tr><tr class="row" data-name="planet surf portugal" data-handle="@planetsurfportugal" data-status="Cold" data-ig="yes" onclick="openModal(35)">
+<td><div class="name">Planet Surf Portugal</div><div class="bio">🇵🇹 small-group surf weeks in Peniche  🏄 surf • surfskate • yoga 🏠…</div></td>
+<td><a class="handle" href="https://instagram.com/planetsurfportugal" target="_blank" onclick="event.stopPropagation()">@planetsurfportugal</a></td>
+<td class="num">1.6k</td>
+<td class="num-sm">123</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">71</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 966336093</td>
+</tr><tr class="row" data-name="mocean surf peniche" data-handle="@rolimwave" data-status="Cold" data-ig="yes" onclick="openModal(36)">
+<td><div class="name">Mocean Surf Peniche</div><div class="bio">@santacruznaturehouse Outdoor Sports Staff Surf &amp; Surfskate Coach…</div></td>
+<td><a class="handle" href="https://instagram.com/rolimwave" target="_blank" onclick="event.stopPropagation()">@rolimwave</a></td>
+<td class="num">1.5k</td>
+<td class="num-sm">313</td>
+<td class="num-sm">⭐ 4,9</td>
+<td class="tc"><span class="badge sh">71</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 917839670</td>
+</tr><tr class="row" data-name="praia do baleal norte" data-handle="@portugal_by_drone_" data-status="Cold" data-ig="yes" onclick="openModal(37)">
+<td><div class="name">Praia do Baleal Norte</div><div class="bio">◽Locais inigualáveis em Portugal 🇵🇹 ◽By Drone Dji Air 2S 5.4k 🎥📷 …</div></td>
+<td><a class="handle" href="https://instagram.com/portugal_by_drone_" target="_blank" onclick="event.stopPropagation()">@portugal_by_drone_</a></td>
+<td class="num">1.4k</td>
+<td class="num-sm">352</td>
+<td class="num-sm">⭐ 4,6</td>
+<td class="tc"><span class="badge sh">71</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 934162287</td>
+</tr><tr class="row" data-name="surf taxi peniche" data-handle="@surftaxipeniche" data-status="Cold" data-ig="yes" onclick="openModal(38)">
+<td><div class="name">Surf Taxi Peniche</div><div class="bio">〰️ All Level Private &amp; Group Surf Lessons 〰️ Surfspot Guiding 〰️ …</div></td>
+<td><a class="handle" href="https://instagram.com/surftaxipeniche" target="_blank" onclick="event.stopPropagation()">@surftaxipeniche</a></td>
+<td class="num">1.1k</td>
+<td class="num-sm">150</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">70</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 914846575</td>
+</tr><tr class="row" data-name="drop surf center" data-handle="@dropsurfcenter" data-status="Cold" data-ig="yes" onclick="openModal(39)">
+<td><div class="name">Drop Surf Center</div><div class="bio">TAKE A WAVE WITH US! 🇵🇹📍Baleal, Peniche  🙏 @yogacenterpeniche 🌊 #…</div></td>
+<td><a class="handle" href="https://instagram.com/dropsurfcenter" target="_blank" onclick="event.stopPropagation()">@dropsurfcenter</a></td>
+<td class="num">1.2k</td>
+<td class="num-sm">446</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">70</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 969519515</td>
+</tr><tr class="row" data-name="the wave garage | baleal" data-handle="@the.wave.garage" data-status="Cold" data-ig="yes" onclick="openModal(40)">
+<td><div class="name">The Wave Garage | Baleal</div><div class="bio">Fast &amp; high quality repairs 2nd Hand Surfshop +351 928 036 169 on…</div></td>
+<td><a class="handle" href="https://instagram.com/the.wave.garage" target="_blank" onclick="event.stopPropagation()">@the.wave.garage</a></td>
+<td class="num">1.1k</td>
+<td class="num-sm">122</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">70</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 911527946</td>
+</tr><tr class="row" data-name="happy days surf peniche" data-handle="@happydays_surfpeniche" data-status="Cold" data-ig="yes" onclick="openModal(41)">
+<td><div class="name">Happy Days Surf Peniche</div><div class="bio">Small Groups | Big Smiles  Surf with us in Peniche | Baleal | Fer…</div></td>
+<td><a class="handle" href="https://instagram.com/happydays_surfpeniche" target="_blank" onclick="event.stopPropagation()">@happydays_surfpeniche</a></td>
+<td class="num">1.0k</td>
+<td class="num-sm">165</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">70</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 917132762</td>
+</tr><tr class="row" data-name="moniz surf lodge" data-handle="@monizsurflodge" data-status="Cold" data-ig="yes" onclick="openModal(42)">
+<td><div class="name">Moniz Surf Lodge</div><div class="bio">Cozy surf lodge for surfers of all levels ran by the Moniz family…</div></td>
+<td><a class="handle" href="https://instagram.com/monizsurflodge" target="_blank" onclick="event.stopPropagation()">@monizsurflodge</a></td>
+<td class="num">1.1k</td>
+<td class="num-sm">199</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">70</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 917282327</td>
+</tr><tr class="row" data-name="the bunker peniche" data-handle="@thebunkerpeniche" data-status="Cold" data-ig="yes" onclick="openModal(43)">
+<td><div class="name">The Bunker Peniche</div><div class="bio">Surfboards. Rentals. Wetsuits and Beers.  WSL official shop.  Vis…</div></td>
+<td><a class="handle" href="https://instagram.com/thebunkerpeniche" target="_blank" onclick="event.stopPropagation()">@thebunkerpeniche</a></td>
+<td class="num">1.2k</td>
+<td class="num-sm">130</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sh">70</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 966196306</td>
+</tr><tr class="row" data-name="surfing baleal" data-handle="@happydays_surfpeniche" data-status="Cold" data-ig="yes" onclick="openModal(44)">
+<td><div class="name">Surfing Baleal</div><div class="bio">Small Groups | Big Smiles  Surf with us in Peniche | Baleal | Fer…</div></td>
+<td><a class="handle" href="https://instagram.com/happydays_surfpeniche" target="_blank" onclick="event.stopPropagation()">@happydays_surfpeniche</a></td>
+<td class="num">1.0k</td>
+<td class="num-sm">165</td>
+<td class="num-sm">⭐ 4,5</td>
+<td class="tc"><span class="badge sh">70</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 213581460</td>
+</tr><tr class="row" data-name="ucpa peniche" data-handle="@ucpapeniche" data-status="Cold" data-ig="yes" onclick="openModal(45)">
+<td><div class="name">UCPA Peniche</div><div class="bio">🌊 Séjour sportif de surf par l’@ucpa  🇵🇹 Peniche | La capitale Eu…</div></td>
+<td><a class="handle" href="https://instagram.com/ucpapeniche" target="_blank" onclick="event.stopPropagation()">@ucpapeniche</a></td>
+<td class="num">844</td>
+<td class="num-sm">117</td>
+<td class="num-sm">⭐ 4,1</td>
+<td class="tc"><span class="badge sm">69</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 965774316</td>
+</tr><tr class="row" data-name="danau surf center" data-handle="@danausurfcenter" data-status="Cold" data-ig="yes" onclick="openModal(46)">
+<td><div class="name">Danau Surf Center</div><div class="bio">🏄‍♂️Surf School   ✌ Rentals  🛌Accommodation 🌴-Your surf holidays-…</div></td>
+<td><a class="handle" href="https://instagram.com/danausurfcenter" target="_blank" onclick="event.stopPropagation()">@danausurfcenter</a></td>
+<td class="num">813</td>
+<td class="num-sm">144</td>
+<td class="num-sm">⭐ 4,6</td>
+<td class="tc"><span class="badge sm">69</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 963965459</td>
+</tr><tr class="row" data-name="freesurfcamp" data-handle="@freesurfcamp" data-status="Cold" data-ig="yes" onclick="openModal(47)">
+<td><div class="name">FreesurfCamp</div><div class="bio">A cosy SurfCamp for travelers/groups looking for surf and beach v…</div></td>
+<td><a class="handle" href="https://instagram.com/freesurfcamp" target="_blank" onclick="event.stopPropagation()">@freesurfcamp</a></td>
+<td class="num">679</td>
+<td class="num-sm">245</td>
+<td class="num-sm">⭐ 4,6</td>
+<td class="tc"><span class="badge sm">68</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 925871766</td>
+</tr><tr class="row" data-name="surf house peniche" data-handle="@surfhousepeniche" data-status="Cold" data-ig="yes" onclick="openModal(48)">
+<td><div class="name">Surf House Peniche</div><div class="bio">Peniche, the Surf paradise in Portugal.  Accommodation, Surf less…</div></td>
+<td><a class="handle" href="https://instagram.com/surfhousepeniche" target="_blank" onclick="event.stopPropagation()">@surfhousepeniche</a></td>
+<td class="num">485</td>
+<td class="num-sm">151</td>
+<td class="num-sm">⭐ 4,9</td>
+<td class="tc"><span class="badge sm">66</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 915565610</td>
+</tr><tr class="row" data-name="alex surf school" data-handle="@alexsurfschooll" data-status="Cold" data-ig="yes" onclick="openModal(49)">
+<td><div class="name">Alex Surf School</div><div class="bio">🔜Aula de Surf &amp; Aluguel de Pranchas. 🏄‍♀️ 🔜O valor não tem preço!…</div></td>
+<td><a class="handle" href="https://instagram.com/alexsurfschooll" target="_blank" onclick="event.stopPropagation()">@alexsurfschooll</a></td>
+<td class="num">1.4k</td>
+<td class="num-sm">82</td>
+<td class="num-sm">⭐ 4,7</td>
+<td class="tc"><span class="badge sm">65</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 918363628</td>
+</tr><tr class="row" data-name="longboard studio" data-handle="@longboardstudio" data-status="Cold" data-ig="yes" onclick="openModal(50)">
+<td><div class="name">Longboard studio</div><div class="bio">· Classic Longboard Workshops   · Longboard Surf Trips  · Premium…</div></td>
+<td><a class="handle" href="https://instagram.com/longboardstudio" target="_blank" onclick="event.stopPropagation()">@longboardstudio</a></td>
+<td class="num">1.7k</td>
+<td class="num-sm">69</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sm">62</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 916817610</td>
+</tr><tr class="row" data-name="surfness lodge" data-handle="@surfnesslodge_peniche_baleal" data-status="Cold" data-ig="yes" onclick="openModal(51)">
+<td><div class="name">Surfness Lodge</div><div class="bio">📍Baleal ~ Peniche 🇵🇹 🏡House with ocean view rooms 🏄‍♂️Surf School…</div></td>
+<td><a class="handle" href="https://instagram.com/surfnesslodge_peniche_baleal" target="_blank" onclick="event.stopPropagation()">@surfnesslodge_peniche_baleal</a></td>
+<td class="num">2.5k</td>
+<td class="num-sm">48</td>
+<td class="num-sm">⭐ 4,9</td>
+<td class="tc"><span class="badge sm">58</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 962134470</td>
+</tr><tr class="row" data-name="surf atelier" data-handle="@xaninho.surf" data-status="Cold" data-ig="yes" onclick="openModal(52)">
+<td><div class="name">Surf Atelier</div><div class="bio">Surf atelier 🏄‍♂️ Repairing boards in Ericeira, Cascais &amp; Estoril…</div></td>
+<td><a class="handle" href="https://instagram.com/xaninho.surf" target="_blank" onclick="event.stopPropagation()">@xaninho.surf</a></td>
+<td class="num">1.3k</td>
+<td class="num-sm">50</td>
+<td class="num-sm">—</td>
+<td class="tc"><span class="badge sm">56</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 969293154</td>
+</tr><tr class="row" data-name="estúdios lagido - peniche surf camp working space surf - studio apartment" data-handle="@paulojorgedasilvapereira" data-status="Cold" data-ig="yes" onclick="openModal(53)">
+<td><div class="name">Estúdios Lagido - Peniche Surf Camp Working Space surf - Studio Apartment</div><div class="bio">Somos o que fazemos, mas somos, principalmente, o que fazemos par…</div></td>
+<td><a class="handle" href="https://instagram.com/paulojorgedasilvapereira" target="_blank" onclick="event.stopPropagation()">@paulojorgedasilvapereira</a></td>
+<td class="num">450</td>
+<td class="num-sm">65</td>
+<td class="num-sm">—</td>
+<td class="tc"><span class="badge sm">55</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 962336295</td>
+</tr><tr class="row" data-name="baleal surfers point" data-handle="@balealsurferspoint" data-status="Cold" data-ig="yes" onclick="openModal(54)">
+<td><div class="name">Baleal Surfers Point</div><div class="bio">Located at Baleal Beach, we provide you the best individual or gr…</div></td>
+<td><a class="handle" href="https://instagram.com/balealsurferspoint" target="_blank" onclick="event.stopPropagation()">@balealsurferspoint</a></td>
+<td class="num">1.0k</td>
+<td class="num-sm">28</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sm">48</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 961316204</td>
+</tr><tr class="row" data-name="waterlost shop / surfschool" data-handle="@paluzziroberto" data-status="Cold" data-ig="yes" onclick="openModal(55)">
+<td><div class="name">Waterlost Shop / Surfschool</div></td>
+<td><a class="handle" href="https://instagram.com/paluzziroberto" target="_blank" onclick="event.stopPropagation()">@paluzziroberto</a></td>
+<td class="num">210</td>
+<td class="num-sm">60</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sm">41</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 910528504</td>
+</tr><tr class="row" data-name="h2o surfguide hostel" data-handle="@tt_travel_tips" data-status="Cold" data-ig="yes" onclick="openModal(56)">
+<td><div class="name">H2O Surfguide Hostel</div><div class="bio">Sharing the best travel experiences, tips and pics from all over …</div></td>
+<td><a class="handle" href="https://instagram.com/tt_travel_tips" target="_blank" onclick="event.stopPropagation()">@tt_travel_tips</a></td>
+<td class="num">202</td>
+<td class="num-sm">24</td>
+<td class="num-sm">⭐ 3,9</td>
+<td class="tc"><span class="badge sm">40</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 967066983</td>
+</tr><tr class="row" data-name="peniche surf escape" data-handle="@penichesurfescape" data-status="Cold" data-ig="yes" onclick="openModal(57)">
+<td><div class="name">Peniche Surf Escape</div><div class="bio">Surf Retreat 🇵🇹 Waves, Wellness and Adventure 🤙 Accommodation • S…</div></td>
+<td><a class="handle" href="https://instagram.com/penichesurfescape" target="_blank" onclick="event.stopPropagation()">@penichesurfescape</a></td>
+<td class="num">396</td>
+<td class="num-sm">18</td>
+<td class="num-sm">—</td>
+<td class="tc"><span class="badge sm">40</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 913259028</td>
+</tr><tr class="row" data-name="peniche surf boards repair" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(58)">
+<td><div class="name">Peniche Surf Boards Repair</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 934381947</td>
+</tr><tr class="row" data-name="surfprovidnyk" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(59)">
+<td><div class="name">surfprovidnyk</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">—</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 938707248</td>
+</tr><tr class="row" data-name="baia de peniche bodyboard" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(60)">
+<td><div class="name">Baia de Peniche Bodyboard</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 4,8</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 262759092</td>
+</tr><tr class="row" data-name="surf house peniche - adventure riders" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(61)">
+<td><div class="name">Surf House Peniche - Adventure Riders</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 4,6</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 915565610</td>
+</tr><tr class="row" data-name="supertubos • west • surf" data-handle="@popular" data-status="Cold" data-ig="yes" onclick="openModal(62)">
+<td><div class="name">Supertubos • West • Surf</div></td>
+<td><a class="handle" href="https://instagram.com/popular" target="_blank" onclick="event.stopPropagation()">@popular</a></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 939303396</td>
+</tr><tr class="row" data-name="sandycamps surf house" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(63)">
+<td><div class="name">Sandycamps Surf House</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 4,9</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 969092470</td>
+</tr><tr class="row" data-name="surfguiding peniche" data-handle="@popular" data-status="Cold" data-ig="yes" onclick="openModal(64)">
+<td><div class="name">SURFGUIDING PENICHE</div></td>
+<td><a class="handle" href="https://instagram.com/popular" target="_blank" onclick="event.stopPropagation()">@popular</a></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 4,9</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 911963413</td>
+</tr><tr class="row" data-name="peniche surf lodge 1 - all levels of surf lessons &amp; daily rentals" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(65)">
+<td><div class="name">Peniche Surf Lodge 1 - All levels of Surf Lessons &amp; Daily Rentals</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 4,7</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 912590574</td>
+</tr><tr class="row" data-name="peniche on surf" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(66)">
+<td><div class="name">Peniche on Surf</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 914790478</td>
+</tr><tr class="row" data-name="surfmore coaching peniche - surf coaching &amp; surf guiding for advanced surfers" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(67)">
+<td><div class="name">SURFMORE COACHING Peniche - Surf Coaching &amp; Surf Guiding for Advanced Surfers</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 964010017</td>
+</tr><tr class="row" data-name="go4surf school peniche" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(68)">
+<td><div class="name">Go4Surf School Peniche</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 4,9</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 964104927</td>
+</tr><tr class="row" data-name="surfschool tribo do mar" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(69)">
+<td><div class="name">Surfschool Tribo do Mar</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 4,9</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 916627518</td>
+</tr><tr class="row" data-name="surf house helena" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(70)">
+<td><div class="name">Surf House Helena</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 5,0</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 962564649</td>
+</tr><tr class="row" data-name="puresurfcamps - surfcamp portugal, puresurfcamp peniche" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(71)">
+<td><div class="name">Puresurfcamps - Surfcamp Portugal, Puresurfcamp Peniche</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 4,8</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 962336295</td>
+</tr><tr class="row" data-name="ponto de encontro beach bar surf school &amp; rentals surf" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(72)">
+<td><div class="name">Ponto de Encontro Beach Bar Surf School &amp; Rentals Surf</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 3,9</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 910516003</td>
+</tr><tr class="row" data-name="rip curl peniche men &amp; women" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(73)">
+<td><div class="name">Rip Curl Peniche Men &amp; Women</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 4,1</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 262790275</td>
+</tr><tr class="row" data-name="boa onda guesthouse peniche" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(74)">
+<td><div class="name">Boa Onda Guesthouse Peniche</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 4,8</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 914010087</td>
+</tr><tr class="row" data-name="surfpoint peniche" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(75)">
+<td><div class="name">Surfpoint Peniche</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 4,9</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 262243607</td>
+</tr><tr class="row" data-name="fred’s adventures - surf school &amp; rentals" data-handle="" data-status="Cold" data-ig="no" onclick="openModal(76)">
+<td><div class="name">Fred’s Adventures - Surf School &amp; Rentals</div></td>
+<td><span class="dim">—</span></td>
+<td class="num">—</td>
+<td class="num-sm">—</td>
+<td class="num-sm">⭐ 4,8</td>
+<td class="tc"><span class="badge sl">0</span></td>
+<td class="tc"><span class="badge sc">Cold</span></td>
+<td class="dim" style="font-size:11px">+351 916311220</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div id="modal" class="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="mc"></div>
+</div>
+
+<script>
+var DATA = [{"Business Name": "Peniche Surf Camp", "Address": "\u00b7 Av. do Mar 162", "Rating": "4,5", "# Reviews": "(278)", "Category": "Escola de surf", "Phone": "+351 962336295", "Email": null, "Instagram Handle": "@penichesurfcamp", "Instagram URL": "https://instagram.com/penichesurfcamp", "Seguidores": 13049, "Seguindo": 617, "Posts": 3301, "Bio": "Surf camp based in Peniche, Portugal \nYour smile is our goal!", "Verificado": true, "Privado": false, "Score Atividade": 90, "Status Lead": "Cold"}, {"Business Name": "Magnus & friends", "Address": "\u00b7 13 Travessa das Pedras Muitas 5", "Rating": "4,7", "# Reviews": "(11)", "Category": "Escola de surf", "Phone": null, "Email": null, "Instagram Handle": "@magnusandfriends", "Instagram URL": "https://instagram.com/magnusandfriends", "Seguidores": 11874, "Seguindo": 739, "Posts": 679, "Bio": "Socialt surfcamp f\u00f6r alla niv\u00e5er och \u00e5ldrar. Surfa med oss i Portugal! \ud83c\udfc4\ud83c\udffc\u200d\u2640\ufe0f\ud83e\udd19\ud83c\udffc Trustpilot - 4,8 av 5 \u2b50\ufe0f", "Verificado": true, "Privado": false, "Score Atividade": 90, "Status Lead": "Cold"}, {"Business Name": "The Salty Surf & Yoga - Peniche Portugal", "Address": "Hotel de 4 estrelas", "Rating": "4,4", "# Reviews": "(103)", "Category": "Hotel de 4 estrelas", "Phone": "+351 920077446", "Email": null, "Instagram Handle": "@thesalty__", "Instagram URL": "https://instagram.com/thesalty__", "Seguidores": 123596, "Seguindo": 2769, "Posts": 1790, "Bio": "Where wellness is social & escapes are shared \nPortugal | Sri Lanka \nYoga \u2022 Surf \u2022 Adventure\n\ud83c\udd71\ud83c\udd7e\ud83c\udd7e\ud83c\udd7a \ud83c\udd88\ud83c\udd7e\ud83c\udd84\ud83c\udd81 \ud83c\udd74\ud83c\udd82\ud83c\udd72\ud83c\udd70\ud83c\udd7f\ud83c\udd74", "Verificado": true, "Privado": false, "Score Atividade": 90, "Status Lead": "Cold"}, {"Business Name": "The Armoury", "Address": "\u00b7 R. da Paz 43", "Rating": "5,0", "# Reviews": "(6)", "Category": "Loja de surf", "Phone": "+351 915708210", "Email": null, "Instagram Handle": "@thearmourynyc", "Instagram URL": "https://instagram.com/thearmourynyc", "Seguidores": 130184, "Seguindo": 180, "Posts": 2811, "Bio": "+1.646.613.7613\nInternational Classic Men's Clothing Since 2010. Shops on the Upper East Side and in Tribeca, NYC.", "Verificado": false, "Privado": false, "Score Atividade": 80, "Status Lead": "Cold"}, {"Business Name": "58 Surf Peniche", "Address": "\u00b7 R. Infante Dom Henrique 4 Loja 1 - R/C", "Rating": "4,3", "# Reviews": "(197)", "Category": "Loja de surf", "Phone": "+351 919786082", "Email": null, "Instagram Handle": "@58surf", "Instagram URL": "https://instagram.com/58surf", "Seguidores": 29929, "Seguindo": 253, "Posts": 2079, "Bio": "#WeSurfEveryday\nPeniche | Matosinhos | Ericeira | Caparica | 58surf.com", "Verificado": false, "Privado": false, "Score Atividade": 80, "Status Lead": "Cold"}, {"Business Name": "Surfers Lodge Peniche", "Address": "Hotel de 4 estrelas", "Rating": "4,5", "# Reviews": "(601)", "Category": "Hotel de 4 estrelas", "Phone": "+351 262700030", "Email": null, "Instagram Handle": "@surferslodgepeniche", "Instagram URL": "https://instagram.com/surferslodgepeniche", "Seguidores": 15604, "Seguindo": 5235, "Posts": 2694, "Bio": "Casual Luxury Lifestyle Lodge | Surf School for surfers of all levels\n4 Star Eco Hotel & Restaurant", "Verificado": false, "Privado": false, "Score Atividade": 80, "Status Lead": "Cold"}, {"Business Name": "Praia do Med\u00e3o Grande", "Address": "Escola de surf", "Rating": "4,6", "# Reviews": "(212)", "Category": "Escola de surf", "Phone": "+351 961316204", "Email": null, "Instagram Handle": "@crashgrafia", "Instagram URL": "https://instagram.com/crashgrafia", "Seguidores": 12331, "Seguindo": 1860, "Posts": 690, "Bio": "Surf Photographer & Filmmaker \n\ud83c\uddf5\ud83c\uddf9 From Peniche Supertubos", "Verificado": false, "Privado": false, "Score Atividade": 80, "Status Lead": "Cold"}, {"Business Name": "Hangfive Surf & Coffee", "Address": "\u00b7 behind washed up bar, Av. do Mar 97 Frac\u00e7\u00e3o C", "Rating": "4,8", "# Reviews": "(75)", "Category": "Loja de surf", "Phone": "+351 947977142", "Email": null, "Instagram Handle": "@hangfivebaleal", "Instagram URL": "https://instagram.com/hangfivebaleal", "Seguidores": 12094, "Seguindo": 1702, "Posts": 2460, "Bio": "Concept Store | Coffee | Surf Club\ud83d\udccdBaleal", "Verificado": false, "Privado": false, "Score Atividade": 80, "Status Lead": "Cold"}, {"Business Name": "Peniche Surf Lodge and Surf School No.2", "Address": "Escola de surf", "Rating": "4,7", "# Reviews": "(29)", "Category": "Escola de surf", "Phone": "+351 912590574", "Email": null, "Instagram Handle": "@surferslodgepeniche", "Instagram URL": "https://instagram.com/surferslodgepeniche", "Seguidores": 15604, "Seguindo": 5235, "Posts": 2694, "Bio": "Casual Luxury Lifestyle Lodge | Surf School for surfers of all levels\n4 Star Eco Hotel & Restaurant", "Verificado": false, "Privado": false, "Score Atividade": 80, "Status Lead": "Cold"}, {"Business Name": "Baleal Surf Camp - Peniche, Portugal", "Address": "\u00b7 Praia do Baleal Campismo, Av. da Praia", "Rating": "4,7", "# Reviews": "(208)", "Category": "Escola de surf", "Phone": "+351 961316204", "Email": null, "Instagram Handle": "@balealsurfcamp", "Instagram URL": "https://instagram.com/balealsurfcamp", "Seguidores": 8528, "Seguindo": 94, "Posts": 533, "Bio": "Embrace the surfing spirit  \ud83c\udfc4\u200d\u270c\u2600\ud83c\udfd6\nThe Original Portuguese Surf Camp \ud83c\uddf5\ud83c\uddf9\nSince 1993", "Verificado": false, "Privado": false, "Score Atividade": 79, "Status Lead": "Cold"}, {"Business Name": "The Journey Store", "Address": "\u00b7 Av. do Mar 123", "Rating": "4,8", "# Reviews": "(78)", "Category": "Loja de surf", "Phone": "+351 919533456", "Email": null, "Instagram Handle": "@thejourneysurfstore", "Instagram URL": "https://instagram.com/thejourneysurfstore", "Seguidores": 8013, "Seguindo": 690, "Posts": 770, "Bio": "Home is Everywhere\nBaleal - Peniche", "Verificado": false, "Privado": false, "Score Atividade": 79, "Status Lead": "Cold"}, {"Business Name": "KoHoLa Surf House", "Address": "\u00b7 R. do Sol 10", "Rating": "5,0", "# Reviews": "(1)", "Category": "Escola de surf", "Phone": "+351 997510125", "Email": null, "Instagram Handle": "@koholasurf", "Instagram URL": "https://instagram.com/koholasurf", "Seguidores": 9632, "Seguindo": 997, "Posts": 263, "Bio": "\u2716\ufe0fSurf, Chill & Good Vibes in Portugal & on Fuerteventura\u2716\ufe0fNext #koholasurf camps:\n\ud83c\uddea\ud83c\uddf8 Mar 21st - Apr 18th\n\ud83c\uddf5\ud83c\uddf9 May 9th - Jun 20th\nJoin us on the beach\ud83d\udc47", "Verificado": false, "Privado": false, "Score Atividade": 79, "Status Lead": "Cold"}, {"Business Name": "Ferrel Surf House", "Address": "Escola de surf", "Rating": "4,5", "# Reviews": "(231)", "Category": "Escola de surf", "Phone": "+351 925013006", "Email": null, "Instagram Handle": "@ferrelsurfhouse", "Instagram URL": "https://instagram.com/ferrelsurfhouse", "Seguidores": 6509, "Seguindo": 1050, "Posts": 535, "Bio": "SURF, WAVES & GOOD VIBES in Peniche, Portugal\ud83c\udfc4\ud83c\udffd\u200d\u2640\ufe0f\nAccomodation | Surf, Yoga, Skate\nRestaurant: @bynorte_cervejaria", "Verificado": false, "Privado": false, "Score Atividade": 78, "Status Lead": "Cold"}, {"Business Name": "Surf it Easy", "Address": "\u00b7 Av. do Mar n\u00b0 100", "Rating": "5,0", "# Reviews": "(38)", "Category": "Escola de surf", "Phone": "+351 910285821", "Email": null, "Instagram Handle": "@surf.it.easy", "Instagram URL": "https://instagram.com/surf.it.easy", "Seguidores": 6576, "Seguindo": 2342, "Posts": 311, "Bio": "Surf School | Surfskate Technical Training | Skate School | All Levels\n\ud83d\udccdPeniche, Portugal\n\u2b07\ufe0f Staying in Peniche for a month? @penichesurfacademy.pt", "Verificado": false, "Privado": false, "Score Atividade": 78, "Status Lead": "Cold"}, {"Business Name": "Baleal Surf Ranch", "Address": "\u00b7 Av. da Praia 39\u00b022'10.7\"N 9\u00b020'16.4\"W", "Rating": "5,0", "# Reviews": "(132)", "Category": "Escola de surf", "Phone": "+351 961316204", "Email": null, "Instagram Handle": "@balealsurfranch", "Instagram URL": "https://instagram.com/balealsurfranch", "Seguidores": 5270, "Seguindo": 31, "Posts": 120, "Bio": "\ud83c\udfc4\ud83c\udffd\u200d\u2642\ufe0f Surf lessons, Rentals & Beach house \n\ud83c\udf34 Chill vibes, sunset & salty smiles\n\ud83c\udf74 Food & Drinks @barracasurfranch \n\ud83d\udccd Baleal Beach\n\ud83d\udd17 Book here \ud83d\udc47\ud83c\udffd", "Verificado": false, "Privado": false, "Score Atividade": 77, "Status Lead": "Cold"}, {"Business Name": "Escola Surf Peniche", "Address": "\u00b7 Av. Monsenhor Bastos, Tv. Terreiro dos Calafates", "Rating": "5,0", "# Reviews": "(300)", "Category": "Escola de surf", "Phone": "+351 262184593", "Email": null, "Instagram Handle": "@escolasurfpeniche", "Instagram URL": "https://instagram.com/escolasurfpeniche", "Seguidores": 5419, "Seguindo": 5929, "Posts": 878, "Bio": "Where your dreams come true.\nSurf lessons, rentals and accommodation.\n\ud83d\udce7 booking@escolasurfpeniche.com\n\ud83d\udcde +351 969 293 154", "Verificado": false, "Privado": false, "Score Atividade": 77, "Status Lead": "Cold"}, {"Business Name": "PKSC | Rentals & Surf School", "Address": "\u00b7 Bar do Cerro, Av. Monsenhor Bastos", "Rating": "4,2", "# Reviews": "(186)", "Category": "Escola de surf", "Phone": "+351 919424951", "Email": null, "Instagram Handle": "@pksc.surfcamp", "Instagram URL": "https://instagram.com/pksc.surfcamp", "Seguidores": 4894, "Seguindo": 832, "Posts": 1287, "Bio": "\ud83c\udf0a Surf Camp & School in Peniche \n\ud83c\udfc4\u200d\u2642\ufe0f Designed to create confident and independent surfers\n\u2b07\ufe0f Book your 2026 Surf Camp!", "Verificado": false, "Privado": false, "Score Atividade": 76, "Status Lead": "Cold"}, {"Business Name": "RIDE Surf Resort & Spa", "Address": "Hotel de 4 estrelas", "Rating": "4,5", "# Reviews": "(273)", "Category": "Hotel de 4 estrelas", "Phone": "+351 262247350", "Email": null, "Instagram Handle": "@ridesurfresort_peniche", "Instagram URL": "https://instagram.com/ridesurfresort_peniche", "Seguidores": 4521, "Seguindo": 988, "Posts": 482, "Bio": "\ud83c\udf43 Hotel, Surf, Spa & Restaurant\n\ud83d\udccd3 min walk to the baleal beaches\n\ud83d\udc3e Pet friendly", "Verificado": false, "Privado": false, "Score Atividade": 76, "Status Lead": "Cold"}, {"Business Name": "Surfers Lab", "Address": "\u00b7 Av. do Mar", "Rating": "4,3", "# Reviews": "(60)", "Category": "Loja de surf", "Phone": "+351 262750331", "Email": null, "Instagram Handle": "@surferslab", "Instagram URL": "https://instagram.com/surferslab", "Seguidores": 4706, "Seguindo": 862, "Posts": 798, "Bio": "#seeyouinthewater", "Verificado": false, "Privado": false, "Score Atividade": 76, "Status Lead": "Cold"}, {"Business Name": "Surfcastle", "Address": "Hotel de 3 estrelas", "Rating": "4,9", "# Reviews": "(81)", "Category": "Hotel de 3 estrelas", "Phone": "+351 912526151", "Email": null, "Instagram Handle": "@surfcastle", "Instagram URL": "https://instagram.com/surfcastle", "Seguidores": 4017, "Seguindo": 1344, "Posts": 574, "Bio": "Boutique hotel and surf school in Peniche, Portugal.", "Verificado": false, "Privado": false, "Score Atividade": 76, "Status Lead": "Cold"}, {"Business Name": "Peniche Kite & Surf Camp", "Address": "\u00b7 Av. Monsenhor Bastos 73", "Rating": "3,0", "# Reviews": "(2)", "Category": "Escola de surf", "Phone": "+351 291345503", "Email": null, "Instagram Handle": "@pksc.surfcamp", "Instagram URL": "https://instagram.com/pksc.surfcamp", "Seguidores": 4894, "Seguindo": 832, "Posts": 1287, "Bio": "\ud83c\udf0a Surf Camp & School in Peniche \n\ud83c\udfc4\u200d\u2642\ufe0f Designed to create confident and independent surfers\n\u2b07\ufe0f Book your 2026 Surf Camp!", "Verificado": false, "Privado": false, "Score Atividade": 76, "Status Lead": "Cold"}, {"Business Name": "PKSC Surf Camp | Surf House", "Address": "Hotel de 2 estrelas", "Rating": "4,5", "# Reviews": "(38)", "Category": "Hotel de 2 estrelas", "Phone": "+351 962336295", "Email": null, "Instagram Handle": "@pksc.surfcamp", "Instagram URL": "https://instagram.com/pksc.surfcamp", "Seguidores": 4894, "Seguindo": 832, "Posts": 1287, "Bio": "\ud83c\udf0a Surf Camp & School in Peniche \n\ud83c\udfc4\u200d\u2642\ufe0f Designed to create confident and independent surfers\n\u2b07\ufe0f Book your 2026 Surf Camp!", "Verificado": false, "Privado": false, "Score Atividade": 76, "Status Lead": "Cold"}, {"Business Name": "Peniche Surfing Clube", "Address": "\u00b7 Centro de Alto Rendimento de Peniche, R. Eng. Carlos Alberto Guerreiro", "Rating": "4,4", "# Reviews": "(26)", "Category": "Organiza\u00e7\u00e3o N\u00e3o Lucrativa", "Phone": "+351 919786082", "Email": null, "Instagram Handle": "@penichesurfingclube", "Instagram URL": "https://instagram.com/penichesurfingclube", "Seguidores": 3780, "Seguindo": 503, "Posts": 525, "Bio": "http://www.ppsc.pt/", "Verificado": false, "Privado": false, "Score Atividade": 75, "Status Lead": "Cold"}, {"Business Name": "Truster Stoked Club", "Address": "\u00b7 Av. do Mar", "Rating": "5,0", "# Reviews": "(76)", "Category": "Escola de surf", "Phone": "+351 962336295", "Email": null, "Instagram Handle": "@truster_stokedclub", "Instagram URL": "https://instagram.com/truster_stokedclub", "Seguidores": 3887, "Seguindo": 971, "Posts": 457, "Bio": "\ud83c\udfc4 | meaningful surf experiences | surf coaching | private & group sessions \n\ud83c\udf0e | Next Surf Trip: COMING SOON \u23f3\n\ud83d\udccd | Baleal & Peniche, \ud83c\uddf5\ud83c\uddf9", "Verificado": false, "Privado": false, "Score Atividade": 75, "Status Lead": "Cold"}, {"Business Name": "Rip Curl Outlet", "Address": "\u00b7 Av. Monsenhor Bastos 18", "Rating": "3,9", "# Reviews": "(131)", "Category": "Loja de surf", "Phone": "+351 262784119", "Email": null, "Instagram Handle": "@ripcurl_santaana", "Instagram URL": "https://instagram.com/ripcurl_santaana", "Seguidores": 3298, "Seguindo": 201, "Posts": 571, "Bio": "(714) 617-3700 \nHours\n9:00am - 7:00pm", "Verificado": false, "Privado": false, "Score Atividade": 75, "Status Lead": "Cold"}, {"Business Name": "Nika Paddle - Surf Camp | Sup Academy in Peniche", "Address": "\u00b7 R. Infante Dom Henrique", "Rating": "4,9", "# Reviews": "(77)", "Category": "Escola de surf", "Phone": "+351 927625849", "Email": null, "Instagram Handle": "@nikapaddlesurfcamp", "Instagram URL": "https://instagram.com/nikapaddlesurfcamp", "Seguidores": 3357, "Seguindo": 2427, "Posts": 378, "Bio": "\ud83c\udf0a Sup Surf & Yoga Retreat\n\ud83d\udce7 info@nikapaddlesurfcamp.com\n\ud83d\udcde +351927625849\n\ud83d\udccdBaleal & Peniche, Portugal \nHead Coach @leonardnika", "Verificado": false, "Privado": false, "Score Atividade": 75, "Status Lead": "Cold"}, {"Business Name": "Alex surf school- Baleal, Peniche", "Address": "Hotel de 3 estrelas", "Rating": "4,7", "# Reviews": "(116)", "Category": "Hotel de 3 estrelas", "Phone": "+351 278886685", "Email": null, "Instagram Handle": "@alexsurfschool", "Instagram URL": "https://instagram.com/alexsurfschool", "Seguidores": 3360, "Seguindo": 2466, "Posts": 507, "Bio": "Family business with 22 years experience in Surf instruction \ud83e\udd47\nTop accommodations close to the beach \ud83c\udf34\n\ud83d\udc47 Visit Us \ud83d\udc47", "Verificado": false, "Privado": false, "Score Atividade": 75, "Status Lead": "Cold"}, {"Business Name": "Silver Coast Surf School Baleal - Peniche", "Address": "\u00b7 R. Casal dos Ninhos 3", "Rating": "5,0", "# Reviews": "(205)", "Category": "Escola de surf", "Phone": "+351 913251231", "Email": null, "Instagram Handle": "@surfingsilvercoast", "Instagram URL": "https://instagram.com/surfingsilvercoast", "Seguidores": 2577, "Seguindo": 486, "Posts": 781, "Bio": "\ud83d\udc8e Unforgettable surfing experience\n\ud83d\udc8e Group and private lessons for all levels\n\ud83d\udc8e Certified instructors and high quality equipment\nLinks:", "Verificado": false, "Privado": false, "Score Atividade": 74, "Status Lead": "Cold"}, {"Business Name": "Special Surf 78 - Peniche Surf School / Rentals", "Address": "\u00b7 Avenida da Praia, Baleal", "Rating": "5,0", "# Reviews": "(386)", "Category": "Escola de surf", "Phone": "+351 233946281", "Email": null, "Instagram Handle": "@specialsurf78", "Instagram URL": "https://instagram.com/specialsurf78", "Seguidores": 2284, "Seguindo": 1187, "Posts": 1094, "Bio": "Local School \ud83c\udf0a\nSurflessons | Rentals | Surf Therapy \ud83c\udfc4\nTo share the surfing experience is our passion \ud83d\ude0e\ud83e\udd19\nPortugal | Peniche \ud83c\uddf5\ud83c\uddf9", "Verificado": false, "Privado": false, "Score Atividade": 73, "Status Lead": "Cold"}, {"Business Name": "NATUREXPERIENCE", "Address": "\u00b7 Avenida do Mar 84 D Ferrel", "Rating": "4,8", "# Reviews": "(93)", "Category": "Escola de surf", "Phone": "+351 917418643", "Email": null, "Instagram Handle": "@naturexperience", "Instagram URL": "https://instagram.com/naturexperience", "Seguidores": 2245, "Seguindo": 670, "Posts": 1580, "Bio": "Your Experience Starts Here!\n\ud83c\udfc4\u200d\u2642\ufe0f \ud835\udde6\ud835\ude02\ud835\uddff\ud835\uddf3 \ud835\udde6\ud835\uddf0\ud835\uddf5\ud835\uddfc\ud835\uddfc\ud835\uddf9\n\ud83e\uddd7\u200d\u2640\ufe0f \ud835\udde5\ud835\uddfc\ud835\uddf0\ud835\uddf8 \ud835\uddd6\ud835\uddf9\ud835\uddf6\ud835\uddfa\ud835\uddef\ud835\uddf6\ud835\uddfb\ud835\uddf4 \ud835\udde7\ud835\uddfc\ud835\ude02\ud835\uddff\ud835\ude00\n\ud83e\udea2\ud835\udde7\ud835\uddf2\ud835\uddee\ud835\uddfa \ud835\uddd5\ud835\ude02\ud835\uddf6\ud835\uddf9\ud835\uddf1\ud835\uddf6\ud835\uddfb\ud835\uddf4\n\ud83d\udccd Baleal, Peniche - Portugal\n\ud83d\udcf1 (+351) 913959659", "Verificado": false, "Privado": false, "Score Atividade": 73, "Status Lead": "Cold"}, {"Business Name": "Shark's Lodge", "Address": "\u00b7 \ue934", "Rating": "4,5", "# Reviews": "(170)", "Category": "Escola de surf", "Phone": "+351 910433605", "Email": null, "Instagram Handle": "@sharkslodge", "Instagram URL": "https://instagram.com/sharkslodge", "Seguidores": 2093, "Seguindo": 421, "Posts": 238, "Bio": "\ud83d\udd25 7-Day RESET \ud83c\uddf5\ud83c\uddf9 \u20ac1,500 All-In\n\ud83c\udfcb\ufe0f CrossFit \ud83e\uddd8Yoga \ud83c\udfc4 Accredited Training\nFree Lodg+Food \ud83c\udf84 Dec 20-Jan 3 Spcl\n\u26a1 2026 Open! DE/FR/UK/NL/PL \u2b07\ufe0f", "Verificado": false, "Privado": false, "Score Atividade": 73, "Status Lead": "Cold"}, {"Business Name": "SoulSurfcamp Portugal", "Address": "Escola de surf", "Rating": "4,9", "# Reviews": "(112)", "Category": "Escola de surf", "Phone": "+351 962336295", "Email": null, "Instagram Handle": "@soulsurfdude", "Instagram URL": "https://instagram.com/soulsurfdude", "Seguidores": 1632, "Seguindo": 914, "Posts": 481, "Bio": "SoulSurfcamp Portugal\n__________________________________________________\nJoin us @soulsurfcamps\n__________________________________________________", "Verificado": false, "Privado": false, "Score Atividade": 72, "Status Lead": "Cold"}, {"Business Name": "G3Store Surf Center", "Address": "\u00b7 Av. Monsenhor Bastos 49", "Rating": "5,0", "# Reviews": "(343)", "Category": "Escola de surf", "Phone": "+351 262112155", "Email": null, "Instagram Handle": "@g3storesurfcenter", "Instagram URL": "https://instagram.com/g3storesurfcenter", "Seguidores": 1830, "Seguindo": 240, "Posts": 436, "Bio": "MORE THAN A SURF SCHOOL,YOUR SURF FAMILY\n\ud83c\udfc4 Surf Lessons | Rentals | Rooms\n\ud83c\udf0a Peniche | Supertubos \n\ud83d\udcec info@g3storesurfcenter.com \n\ud83d\udcde +351 913 238 233", "Verificado": false, "Privado": false, "Score Atividade": 72, "Status Lead": "Cold"}, {"Business Name": "Filipe Anjos - Private Surf Coach - Baleal, Peniche & \u00d3bidos", "Address": "\u00b7 Av. do Mar", "Rating": "5,0", "# Reviews": "(19)", "Category": "Escola de surf", "Phone": "+351 937932468", "Email": null, "Instagram Handle": "@filipeanjos.coaching", "Instagram URL": "https://instagram.com/filipeanjos.coaching", "Seguidores": 1784, "Seguindo": 724, "Posts": 398, "Bio": "Elite 1:1 Surf Coaching | All Levels\nSpecialized in Wave Reading & Performance.\n1M+ Analyses. Online Masterclasses.\n\ud83d\udc47 DM to apply for availability", "Verificado": false, "Privado": false, "Score Atividade": 72, "Status Lead": "Cold"}, {"Business Name": "Surf Mama School", "Address": "\u00b7 R. das Galhetas C14", "Rating": "4,9", "# Reviews": "(59)", "Category": "Escola de surf", "Phone": "+351 934423648", "Email": null, "Instagram Handle": "@surfmamaschool", "Instagram URL": "https://instagram.com/surfmamaschool", "Seguidores": 1330, "Seguindo": 530, "Posts": 227, "Bio": "Surf Mama School                                     \nPeniche , Portugal\ud83d\udccd\n| surf lessons \u2022 group & private \u2022 family and friends | surfskate lessons |", "Verificado": false, "Privado": false, "Score Atividade": 71, "Status Lead": "Cold"}, {"Business Name": "Planet Surf Portugal", "Address": "\u00b7 rua do Catalao n'65", "Rating": "5,0", "# Reviews": "(12)", "Category": "Escola de surf", "Phone": "+351 966336093", "Email": null, "Instagram Handle": "@planetsurfportugal", "Instagram URL": "https://instagram.com/planetsurfportugal", "Seguidores": 1556, "Seguindo": 613, "Posts": 123, "Bio": "\ud83c\uddf5\ud83c\uddf9 small-group surf weeks in Peniche \n\ud83c\udfc4 surf \u2022 surfskate \u2022 yoga\n\ud83c\udfe0 7 nights \u2022 5 surf days \u2022 full board\n\ud83d\uddd3\ufe0f may-november\n\u2b07\ufe0f join us this season", "Verificado": false, "Privado": false, "Score Atividade": 71, "Status Lead": "Cold"}, {"Business Name": "Mocean Surf Peniche", "Address": "\u00b7 Avenida do Mar Lote C Consola\u00e7\u00e3o, Atouguia da Baleia", "Rating": "4,9", "# Reviews": "(139)", "Category": "Escola de surf", "Phone": "+351 917839670", "Email": null, "Instagram Handle": "@rolimwave", "Instagram URL": "https://instagram.com/rolimwave", "Seguidores": 1542, "Seguindo": 2379, "Posts": 313, "Bio": "@santacruznaturehouse Outdoor Sports Staff\nSurf & Surfskate Coach (FPS grade II)\ud83c\udfc4\ud83c\udffd\u200d\u2642\ufe0f", "Verificado": false, "Privado": false, "Score Atividade": 71, "Status Lead": "Cold"}, {"Business Name": "Praia do Baleal Norte", "Address": "\u00b7 R. Francisco Silvestre 1", "Rating": "4,6", "# Reviews": "(2876)", "Category": "Escola de surf", "Phone": "+351 934162287", "Email": null, "Instagram Handle": "@portugal_by_drone_", "Instagram URL": "https://instagram.com/portugal_by_drone_", "Seguidores": 1404, "Seguindo": 765, "Posts": 352, "Bio": "\u25fdLocais inigual\u00e1veis em Portugal \ud83c\uddf5\ud83c\uddf9\n\u25fdBy Drone Dji Air 2S 5.4k \ud83c\udfa5\ud83d\udcf7 \n\u25fdEventos / Fotografia e V\u00eddeo / Edi\u00e7\u00e3o", "Verificado": false, "Privado": false, "Score Atividade": 71, "Status Lead": "Cold"}, {"Business Name": "Surf Taxi Peniche", "Address": "\u00b7 Tv. Cruz das Almas 27", "Rating": "5,0", "# Reviews": "(97)", "Category": "Escola de surf", "Phone": "+351 914846575", "Email": null, "Instagram Handle": "@surftaxipeniche", "Instagram URL": "https://instagram.com/surftaxipeniche", "Seguidores": 1146, "Seguindo": 953, "Posts": 150, "Bio": "\u3030\ufe0f All Level Private & Group Surf Lessons\n\u3030\ufe0f Surfspot Guiding\n\u3030\ufe0f ISA+FPS Certified Instructors\n\u3030\ufe0f Small Groups \n\u3030\ufe0f Best Waves in Europe\n\ud83c\udfc4\u200d\u2640\ufe0f Book Now!", "Verificado": false, "Privado": false, "Score Atividade": 70, "Status Lead": "Cold"}, {"Business Name": "Drop Surf Center", "Address": "\u00b7 Av. do Mar 170", "Rating": "5,0", "# Reviews": "(51)", "Category": "Escola de surf", "Phone": "+351 969519515", "Email": null, "Instagram Handle": "@dropsurfcenter", "Instagram URL": "https://instagram.com/dropsurfcenter", "Seguidores": 1172, "Seguindo": 1430, "Posts": 446, "Bio": "TAKE A WAVE WITH US! \ud83c\uddf5\ud83c\uddf9\ud83d\udccdBaleal, Peniche\u00a0\n\ud83d\ude4f @yogacenterpeniche\n\ud83c\udf0a #dropsurfcenter", "Verificado": false, "Privado": false, "Score Atividade": 70, "Status Lead": "Cold"}, {"Business Name": "The Wave Garage | Baleal", "Address": "\u00b7 R. Primeiro de Dezembro 21", "Rating": "5,0", "# Reviews": "(117)", "Category": "Loja de surf", "Phone": "+351 911527946", "Email": null, "Instagram Handle": "@the.wave.garage", "Instagram URL": "https://instagram.com/the.wave.garage", "Seguidores": 1133, "Seguindo": 1071, "Posts": 122, "Bio": "Fast & high quality repairs\n2nd Hand Surfshop\n+351 928 036 169 on WhatsApp only\nBoard Pick-up / deliver\nSurf art - Board Painting\nIt's all about surf\ud83c\udf0a", "Verificado": false, "Privado": false, "Score Atividade": 70, "Status Lead": "Cold"}, {"Business Name": "Happy Days Surf Peniche", "Address": "Escola de surf", "Rating": "5,0", "# Reviews": "(190)", "Category": "Escola de surf", "Phone": "+351 917132762", "Email": null, "Instagram Handle": "@happydays_surfpeniche", "Instagram URL": "https://instagram.com/happydays_surfpeniche", "Seguidores": 1039, "Seguindo": 742, "Posts": 165, "Bio": "Small Groups | Big Smiles \nSurf with us in Peniche | Baleal | Ferrel \nIn English \ud83c\uddec\ud83c\udde7 French \ud83c\uddeb\ud83c\uddf7 & Portuguese \ud83c\uddf5\ud83c\uddf9\nGroup & private Lessons\nLearn more \ud83d\udc47\ud83c\udffc", "Verificado": false, "Privado": false, "Score Atividade": 70, "Status Lead": "Cold"}, {"Business Name": "Moniz Surf Lodge", "Address": "\u00b7 \ue934", "Rating": "5,0", "# Reviews": "(28)", "Category": "Alojamento", "Phone": "+351 917282327", "Email": null, "Instagram Handle": "@monizsurflodge", "Instagram URL": "https://instagram.com/monizsurflodge", "Seguidores": 1081, "Seguindo": 716, "Posts": 199, "Bio": "Cozy surf lodge for surfers of all levels ran by the Moniz family.\n#surflodge #peniche \n#surfportugal #longboardsurfing", "Verificado": false, "Privado": false, "Score Atividade": 70, "Status Lead": "Cold"}, {"Business Name": "The Bunker Peniche", "Address": "\u00b7 Av. Monsenhor Bastos 7b", "Rating": "5,0", "# Reviews": "(21)", "Category": "Loja de surf", "Phone": "+351 966196306", "Email": null, "Instagram Handle": "@thebunkerpeniche", "Instagram URL": "https://instagram.com/thebunkerpeniche", "Seguidores": 1240, "Seguindo": 84, "Posts": 130, "Bio": "Surfboards. Rentals.\nWetsuits and Beers. \nWSL official shop. \nVissla Pro shop.", "Verificado": false, "Privado": false, "Score Atividade": 70, "Status Lead": "Cold"}, {"Business Name": "Surfing Baleal", "Address": "\u00b7 \ue934", "Rating": "4,5", "# Reviews": "(69)", "Category": "Centro recreativo", "Phone": "+351 213581460", "Email": null, "Instagram Handle": "@happydays_surfpeniche", "Instagram URL": "https://instagram.com/happydays_surfpeniche", "Seguidores": 1039, "Seguindo": 742, "Posts": 165, "Bio": "Small Groups | Big Smiles \nSurf with us in Peniche | Baleal | Ferrel \nIn English \ud83c\uddec\ud83c\udde7 French \ud83c\uddeb\ud83c\uddf7 & Portuguese \ud83c\uddf5\ud83c\uddf9\nGroup & private Lessons\nLearn more \ud83d\udc47\ud83c\udffc", "Verificado": false, "Privado": false, "Score Atividade": 70, "Status Lead": "Cold"}, {"Business Name": "UCPA Peniche", "Address": "\u00b7 R. do Catalo 65", "Rating": "4,1", "# Reviews": "(28)", "Category": "Escola de surf", "Phone": "+351 965774316", "Email": null, "Instagram Handle": "@ucpapeniche", "Instagram URL": "https://instagram.com/ucpapeniche", "Seguidores": 844, "Seguindo": 222, "Posts": 117, "Bio": "\ud83c\udf0a S\u00e9jour sportif de surf par l\u2019@ucpa \n\ud83c\uddf5\ud83c\uddf9 Peniche | La capitale Europ\u00e9enne du surf\n\u2600\ufe0f S\u00e9jour tout inclus\n\u2b07\ufe0f Infos & r\u00e9servations", "Verificado": false, "Privado": false, "Score Atividade": 69, "Status Lead": "Cold"}, {"Business Name": "Danau Surf Center", "Address": "\u00b7 do baleal, Av. da Praia", "Rating": "4,6", "# Reviews": "(52)", "Category": "Escola de surf", "Phone": "+351 963965459", "Email": null, "Instagram Handle": "@danausurfcenter", "Instagram URL": "https://instagram.com/danausurfcenter", "Seguidores": 813, "Seguindo": 224, "Posts": 144, "Bio": "\ud83c\udfc4\u200d\u2642\ufe0fSurf School \n \u270c Rentals \n\ud83d\udeccAccommodation\n\ud83c\udf34-Your surf holidays- \ud83c\udf34", "Verificado": false, "Privado": false, "Score Atividade": 69, "Status Lead": "Cold"}, {"Business Name": "FreesurfCamp", "Address": "Hotel de 2 estrelas", "Rating": "4,6", "# Reviews": "(78)", "Category": "Hotel de 2 estrelas", "Phone": "+351 925871766", "Email": null, "Instagram Handle": "@freesurfcamp", "Instagram URL": "https://instagram.com/freesurfcamp", "Seguidores": 679, "Seguindo": 250, "Posts": 245, "Bio": "A cosy SurfCamp for travelers/groups looking for surf and beach vibes \ud83c\udf0a\nBook your room or whole house (with \ud83c\udfca\u200d\u2642\ufe0f pool) for 24 ppl\ud83d\udc47\ud83c\udffd\n\ud83d\udccdPeniche, Portugal", "Verificado": false, "Privado": false, "Score Atividade": 68, "Status Lead": "Cold"}, {"Business Name": "Surf House Peniche", "Address": "Ag\u00eancia de Viagens", "Rating": "4,9", "# Reviews": "(17)", "Category": "Ag\u00eancia de Viagens", "Phone": "+351 915565610", "Email": null, "Instagram Handle": "@surfhousepeniche", "Instagram URL": "https://instagram.com/surfhousepeniche", "Seguidores": 485, "Seguindo": 749, "Posts": 151, "Bio": "Peniche, the Surf paradise in Portugal. \nAccommodation, Surf lessons, Surf rentals, Surf holidays.", "Verificado": false, "Privado": false, "Score Atividade": 66, "Status Lead": "Cold"}, {"Business Name": "Alex Surf School", "Address": "\u00b7 Av. da Praia 18", "Rating": "4,7", "# Reviews": "(24)", "Category": "Escola de surf", "Phone": "+351 918363628", "Email": null, "Instagram Handle": "@alexsurfschooll", "Instagram URL": "https://instagram.com/alexsurfschooll", "Seguidores": 1448, "Seguindo": 935, "Posts": 82, "Bio": "\ud83d\udd1cAula de Surf & Aluguel de Pranchas. \ud83c\udfc4\u200d\u2640\ufe0f\n\ud83d\udd1cO valor n\u00e3o tem pre\u00e7o! \ud83c\udf40\n\ud83d\udd1cComece j\u00e1! \u2b07\ufe0f\n\ud83d\udd1c (21) 96483-9294 \ud83d\udcf2\n\ud83d\udccd Arpoador - Zona Sul  (Rio de Janeiro)", "Verificado": false, "Privado": false, "Score Atividade": 65, "Status Lead": "Cold"}, {"Business Name": "Longboard studio", "Address": "\u00b7 R. do Brejo 6a", "Rating": "5,0", "# Reviews": "(16)", "Category": "Consultoria", "Phone": "+351 916817610", "Email": null, "Instagram Handle": "@longboardstudio", "Instagram URL": "https://instagram.com/longboardstudio", "Seguidores": 1673, "Seguindo": 191, "Posts": 69, "Bio": "\u00b7 Classic Longboard Workshops \n \u00b7 Longboard Surf Trips\n \u00b7 Premium Longboard Rental\n \u00b7 Based in Baleal & Operating Worldwide", "Verificado": false, "Privado": false, "Score Atividade": 62, "Status Lead": "Cold"}, {"Business Name": "Surfness Lodge", "Address": "Hotel de 3 estrelas", "Rating": "4,9", "# Reviews": "(28)", "Category": "Hotel de 3 estrelas", "Phone": "+351 962134470", "Email": null, "Instagram Handle": "@surfnesslodge_peniche_baleal", "Instagram URL": "https://instagram.com/surfnesslodge_peniche_baleal", "Seguidores": 2547, "Seguindo": 295, "Posts": 48, "Bio": "\ud83d\udccdBaleal ~ Peniche \ud83c\uddf5\ud83c\uddf9\n\ud83c\udfe1House with ocean view rooms\n\ud83c\udfc4\u200d\u2642\ufe0fSurf School | \ud83e\uddd8\ud83c\udffc\u200d\u2642\ufe0fYoga | \ud83c\udf05Relax\n\ud83c\udf0a Live the experience | \ud83d\udcf2 Book now & Follow us \ud83d\udc47", "Verificado": false, "Privado": false, "Score Atividade": 58, "Status Lead": "Cold"}, {"Business Name": "Surf Atelier", "Address": "\u00b7 Av. Monsenhor Bastos", "Rating": null, "# Reviews": null, "Category": "Escola de surf", "Phone": "+351 969293154", "Email": null, "Instagram Handle": "@xaninho.surf", "Instagram URL": "https://instagram.com/xaninho.surf", "Seguidores": 1323, "Seguindo": 1675, "Posts": 50, "Bio": "Surf atelier \ud83c\udfc4\u200d\u2642\ufe0f Repairing boards in Ericeira, Cascais & Estoril \ud83c\udf0a Former Pro Surfer, focus on performance with a smile \ud83e\udd19\ud83d\ude03\ud83c\udfc4", "Verificado": false, "Privado": false, "Score Atividade": 56, "Status Lead": "Cold"}, {"Business Name": "Est\u00fadios Lagido - Peniche Surf Camp Working Space surf - Studio Apartment", "Address": null, "Rating": null, "# Reviews": null, "Category": null, "Phone": "+351 962336295", "Email": null, "Instagram Handle": "@paulojorgedasilvapereira", "Instagram URL": "https://instagram.com/paulojorgedasilvapereira", "Seguidores": 450, "Seguindo": 1476, "Posts": 65, "Bio": "Somos o que fazemos, mas somos, principalmente, o que fazemos para mudar o que somos!", "Verificado": false, "Privado": false, "Score Atividade": 55, "Status Lead": "Cold"}, {"Business Name": "Baleal Surfers Point", "Address": "\u00b7 Praia Baleal Campismo", "Rating": "5,0", "# Reviews": "(29)", "Category": "Escola de surf", "Phone": "+351 961316204", "Email": null, "Instagram Handle": "@balealsurferspoint", "Instagram URL": "https://instagram.com/balealsurferspoint", "Seguidores": 1011, "Seguindo": 1325, "Posts": 28, "Bio": "Located at Baleal Beach, we provide you the best individual or group lessons. We also have a wide range of boards and wetsuits to rent.", "Verificado": false, "Privado": false, "Score Atividade": 48, "Status Lead": "Cold"}, {"Business Name": "Waterlost Shop / Surfschool", "Address": "\u00b7 Largo da Ribeira 39", "Rating": "5,0", "# Reviews": "(874)", "Category": "Escola de surf", "Phone": "+351 910528504", "Email": null, "Instagram Handle": "@paluzziroberto", "Instagram URL": "https://instagram.com/paluzziroberto", "Seguidores": 210, "Seguindo": 504, "Posts": 60, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 41, "Status Lead": "Cold"}, {"Business Name": "H2O Surfguide Hostel", "Address": "Hotel de 2 estrelas", "Rating": "3,9", "# Reviews": "(33)", "Category": "Hotel de 2 estrelas", "Phone": "+351 967066983", "Email": null, "Instagram Handle": "@tt_travel_tips", "Instagram URL": "https://instagram.com/tt_travel_tips", "Seguidores": 202, "Seguindo": 752, "Posts": 24, "Bio": "Sharing the best travel experiences, tips and pics from all over the World \ud83c\udf0d\nIf you're a travel lover...Follow us and enjoy your life travelling! \ud83c\udfd4\ufe0f\ud83c\udf05\ud83c\udf0a", "Verificado": false, "Privado": false, "Score Atividade": 40, "Status Lead": "Cold"}, {"Business Name": "Peniche Surf Escape", "Address": "\u00b7 Av. do Mar 58D", "Rating": null, "# Reviews": null, "Category": "Escola de surf", "Phone": "+351 913259028", "Email": null, "Instagram Handle": "@penichesurfescape", "Instagram URL": "https://instagram.com/penichesurfescape", "Seguidores": 396, "Seguindo": 204, "Posts": 18, "Bio": "Surf Retreat \ud83c\uddf5\ud83c\uddf9\nWaves, Wellness and Adventure \ud83e\udd19\nAccommodation \u2022 Surf \u2022 Yoga \u2022 Surfskate \u2022 Tours\n\ud83c\udf0aAvailable for all levels\n\ud83d\udce9Book now & Join the Tribe", "Verificado": false, "Privado": false, "Score Atividade": 40, "Status Lead": "Cold"}, {"Business Name": "Peniche Surf Boards Repair", "Address": "\u00b7 R. do Regato", "Rating": "5,0", "# Reviews": "(5)", "Category": "Servi\u00e7o de conserto", "Phone": "+351 934381947", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "surfprovidnyk", "Address": "\u00b7 Estr. Marginal Sul", "Rating": null, "# Reviews": null, "Category": "Escola de surf", "Phone": "+351 938707248", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Baia de Peniche Bodyboard", "Address": "\u00b7 Danau Baleal Beach Bar, Avenida da praia, 21, Ferrel", "Rating": "4,8", "# Reviews": "(41)", "Category": "Escola de surf", "Phone": "+351 262759092", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Surf House Peniche - Adventure Riders", "Address": "Hotel", "Rating": "4,6", "# Reviews": "(61)", "Category": "Hotel", "Phone": "+351 915565610", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Supertubos \u2022 West \u2022 Surf", "Address": "\u00b7 R. Imaculado Cora\u00e7\u00e3o de Maria 24", "Rating": "5,0", "# Reviews": "(303)", "Category": "Escola de surf", "Phone": "+351 939303396", "Email": null, "Instagram Handle": "@popular", "Instagram URL": "https://instagram.com/popular", "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Sandycamps Surf House", "Address": "Hotel", "Rating": "4,9", "# Reviews": "(218)", "Category": "Hotel", "Phone": "+351 969092470", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "SURFGUIDING PENICHE", "Address": "\u00b7 R. Amigos do Baleal 36", "Rating": "4,9", "# Reviews": "(55)", "Category": "Servi\u00e7o de aluguel de equipamento esportivo", "Phone": "+351 911963413", "Email": null, "Instagram Handle": "@popular", "Instagram URL": "https://instagram.com/popular", "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Peniche Surf Lodge 1 - All levels of Surf Lessons & Daily Rentals", "Address": "\u00b7 \ue934", "Rating": "4,7", "# Reviews": "(87)", "Category": "Hotel de 2 estrelas", "Phone": "+351 912590574", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Peniche on Surf", "Address": "\u00b7 R. Francisco Silvestre", "Rating": "5,0", "# Reviews": "(125)", "Category": "Escola de surf", "Phone": "+351 914790478", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "SURFMORE COACHING Peniche - Surf Coaching & Surf Guiding for Advanced Surfers", "Address": "\u00b7 Baleal", "Rating": "5,0", "# Reviews": "(54)", "Category": "Centro de coaching", "Phone": "+351 964010017", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Go4Surf School Peniche", "Address": "\u00b7 Tv. da Exportadora", "Rating": "4,9", "# Reviews": "(410)", "Category": "Escola de surf", "Phone": "+351 964104927", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Surfschool Tribo do Mar", "Address": "\u00b7 Avenida da Praia, urbaniza\u00e7\u00e3o percebal, lt 2lj", "Rating": "4,9", "# Reviews": "(60)", "Category": "Escola de surf", "Phone": "+351 916627518", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Surf House Helena", "Address": "Escola de surf", "Rating": "5,0", "# Reviews": "(10)", "Category": "Escola de surf", "Phone": "+351 962564649", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Puresurfcamps - Surfcamp Portugal, Puresurfcamp Peniche", "Address": "Casa de h\u00f3spedes", "Rating": "4,8", "# Reviews": "(76)", "Category": "Casa de h\u00f3spedes", "Phone": "+351 962336295", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Ponto de Encontro Beach Bar Surf School & Rentals Surf", "Address": "\u00b7 Praia Baleal Campismo", "Rating": "3,9", "# Reviews": "(288)", "Category": "Restaurante", "Phone": "+351 910516003", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Rip Curl Peniche Men & Women", "Address": "\u00b7 edificio Rip Curl, Av. da Praia", "Rating": "4,1", "# Reviews": "(158)", "Category": "Loja de surf", "Phone": "+351 262790275", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Boa Onda Guesthouse Peniche", "Address": "Escola de surf", "Rating": "4,8", "# Reviews": "(221)", "Category": "Escola de surf", "Phone": "+351 914010087", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Surfpoint Peniche", "Address": "\u00b7 Avenida Monsenhor Manuel Bastos Rodrigues de Sousa, 37", "Rating": "4,9", "# Reviews": "(58)", "Category": "Loja de surf", "Phone": "+351 262243607", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}, {"Business Name": "Fred\u2019s Adventures - Surf School & Rentals", "Address": "\u00b7 R. Raul Brand\u00e3o 52", "Rating": "4,8", "# Reviews": "(82)", "Category": "Escola de surf", "Phone": "+351 916311220", "Email": null, "Instagram Handle": null, "Instagram URL": null, "Seguidores": null, "Seguindo": null, "Posts": null, "Bio": null, "Verificado": false, "Privado": false, "Score Atividade": 0, "Status Lead": "Cold"}];
+
+function applyFilters() {
+  var q = document.getElementById('search').value.toLowerCase();
+  var st = document.getElementById('filterStatus').value;
+  var ig = document.getElementById('filterInsta').value;
+  var rows = document.getElementById('tbody').getElementsByTagName('tr');
+  var visible = 0;
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    var name = r.getAttribute('data-name') || '';
+    var handle = r.getAttribute('data-handle') || '';
+    var status = r.getAttribute('data-status') || '';
+    var hasIg = r.getAttribute('data-ig') === 'yes';
+    var show = true;
+    if (q && name.indexOf(q) === -1 && handle.indexOf(q) === -1) show = false;
+    if (st && status !== st) show = false;
+    if (ig === 'yes' && !hasIg) show = false;
+    if (ig === 'no' && hasIg) show = false;
+    r.className = show ? 'row' : 'row hidden';
+    if (show) visible++;
+  }
+  document.getElementById('count').textContent = visible + ' de 77 escolas';
+}
+
+function openModal(idx) {
+  var r = DATA[idx];
+  if (!r) return;
+  var score = r['Score Atividade'] || 0;
+  var phone = r['Phone'] && String(r['Phone']).charAt(0) === '+' ? r['Phone'] : null;
+  var bio = (r['Bio'] || '').replace(/\n/g, '<br>');
+  var sc = score>=70?'sh':score>=40?'sm':'sl';
+
+  var h = '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">';
+  h += '<div><h2>' + (r['Business Name']||'') + '</h2>';
+  if (r['Instagram Handle']) h += '<a href="' + (r['Instagram URL']||'') + '" target="_blank">' + r['Instagram Handle'] + ' ↗</a>';
+  else h += '<span style="color:#64748b;font-size:13px">Sem Instagram</span>';
+  h += '</div>';
+  h += '<div style="text-align:right">';
+  h += '<span class="badge ' + sc + '" style="font-size:16px;padding:4px 12px">' + score + '</span><br>';
+  h += '<button onclick="closeModal()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:12px;margin-top:6px">✕ fechar</button>';
+  h += '</div></div>';
+
+  if (bio) h += '<div class="biobox">' + bio + '</div>';
+
+  h += '<div class="metrics">';
+  if (r['Seguidores'] != null) h += '<div class="metric"><div class="mn">' + fmt(r['Seguidores']) + '</div><div class="mlb">Seguidores</div></div>';
+  if (r['Posts'] != null) h += '<div class="metric"><div class="mn">' + fmt(r['Posts']) + '</div><div class="mlb">Posts</div></div>';
+  if (r['Seguindo'] != null) h += '<div class="metric"><div class="mn">' + fmt(r['Seguindo']) + '</div><div class="mlb">Seguindo</div></div>';
+  h += '</div><div>';
+  if (r['Rating']) h += '<div class="mrow"><span class="ml">Rating Google</span><span class="mv">⭐ ' + r['Rating'] + ' ' + (r['# Reviews']||'') + '</span></div>';
+  if (r['Category']) h += '<div class="mrow"><span class="ml">Categoria</span><span class="mv">' + r['Category'] + '</span></div>';
+  if (r['Address']) h += '<div class="mrow"><span class="ml">Morada</span><span class="mv">' + r['Address'] + '</span></div>';
+  if (phone) h += '<div class="mrow"><span class="ml">Telefone</span><a href="tel:' + phone + '">' + phone + '</a></div>';
+  if (r['Email']) h += '<div class="mrow"><span class="ml">Email</span><a href="mailto:' + r['Email'] + '">' + r['Email'] + '</a></div>';
+  if (r['Verificado']) h += '<div class="mrow"><span class="ml">Instagram</span><span style="color:#60a5fa">✓ Verificado</span></div>';
+  if (r['Privado']) h += '<div class="mrow"><span class="ml">Perfil</span><span style="color:#fbbf24">🔒 Privado</span></div>';
+  h += '</div>';
+
+  var stMap = {'Cold':'sc','Contactado':'sco','Proposta':'sp','Fechado':'sf'};
+  h += '<div class="mfooter"><span class="ml">Status:</span>';
+  h += '<select onchange="updateStatus(' + idx + ',this.value)" style="padding:6px 12px">';
+  h += '<option' + (r['Status Lead']==='Cold'?' selected':'') + '>Cold</option>';
+  h += '<option' + (r['Status Lead']==='Contactado'?' selected':'') + '>Contactado</option>';
+  h += '<option' + (r['Status Lead']==='Proposta'?' selected':'') + '>Proposta</option>';
+  h += '<option' + (r['Status Lead']==='Fechado'?' selected':'') + '>Fechado</option>';
+  h += '</select>';
+  if (r['Instagram URL']) h += '<button class="btn-ig" onclick="window.open(\'' + r['Instagram URL'] + '\',\'_blank\')">Abrir Instagram ↗</button>';
+  h += '</div>';
+
+  document.getElementById('mc').innerHTML = h;
+  document.getElementById('modal').className = 'modal-bg open';
+}
+
+function closeModal() { document.getElementById('modal').className = 'modal-bg'; }
+
+function updateStatus(idx, s) {
+  DATA[idx]['Status Lead'] = s;
+  var rows = document.getElementById('tbody').getElementsByTagName('tr');
+  if (rows[idx]) rows[idx].setAttribute('data-status', s);
+  var badges = rows[idx] ? rows[idx].getElementsByClassName('badge') : [];
+  var stMap = {'Cold':'sc','Contactado':'sco','Proposta':'sp','Fechado':'sf'};
+  if (badges.length > 0) {
+    var lastBadge = badges[badges.length-1];
+    lastBadge.className = 'badge ' + (stMap[s]||'sc');
+    lastBadge.textContent = s;
+  }
+}
+
+function fmt(n) {
+  if (!n && n !== 0) return '—';
+  if (n >= 1000000) return (n/1e6).toFixed(1)+'M';
+  if (n >= 1000) return (n/1000).toFixed(1)+'k';
+  return n;
+}
+
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>

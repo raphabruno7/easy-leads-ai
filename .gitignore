@@ -10,8 +10,4 @@ __pycache__/
 # OS
 .DS_Store
 
-# HTML gerado (regenerado pelos scripts)
-dashboard.html
-restaurantes.html
-index.html
 .env
