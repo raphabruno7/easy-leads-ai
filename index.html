@@ -130,6 +130,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .modal-box h2{font-size:18px;font-weight:700;color:var(--text)}
 .modal-log{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:11px;font-family:'SF Mono',ui-monospace,monospace;color:var(--muted);min-height:80px;max-height:280px;overflow-y:auto;line-height:1.8;margin-top:16px}
 
+/* Config modal form */
+.cfg-label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.cfg-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;color:var(--text);background:var(--surface);transition:border-color .15s}
+.cfg-input:focus{outline:none;border-color:var(--accent)}
+.cfg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+
 /* Responsive */
 @media(max-width:768px){
   .container{padding:0 20px}
@@ -270,7 +276,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         <h2 class="card-title">Clinics / Dentists</h2>
         <p class="card-desc">Appointments, reminders, post-visit follow-up, new patient acquisition</p>
         <div class="potential"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span></div>
-        <button class="btn btn-outline" onclick="launchScraper('clinicas','Clinics / Dentists','clinicas.html')">Launch Scraper</button>
+        <button class="btn btn-outline" onclick="openConfigModal('Clinics / Dentists')">Launch Scraper</button>
       </div>
       <div class="card suggested" style="--card-accent:#14b8a6">
         <div class="card-top">
@@ -280,7 +286,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         <h2 class="card-title">Short-Term Rentals</h2>
         <p class="card-desc">Automated check-in, tourist FAQ, review management</p>
         <div class="potential"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot"></span></div>
-        <button class="btn btn-outline" onclick="launchScraper('alojamento','Short-Term Rentals','alojamento.html')">Launch Scraper</button>
+        <button class="btn btn-outline" onclick="openConfigModal('Short-Term Rentals')">Launch Scraper</button>
       </div>
       <div class="card suggested" style="--card-accent:#a78bfa">
         <div class="card-top">
@@ -290,7 +296,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         <h2 class="card-title">Physio / Wellness</h2>
         <p class="card-desc">Surf injuries drive high demand. Bookings, training plans, upsell</p>
         <div class="potential"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot"></span></div>
-        <button class="btn btn-outline" onclick="launchScraper('fisioterapia','Physio / Wellness','fisioterapia.html')">Launch Scraper</button>
+        <button class="btn btn-outline" onclick="openConfigModal('Physio / Wellness')">Launch Scraper</button>
       </div>
       <div class="card suggested" style="--card-accent:#34d399">
         <div class="card-top">
@@ -300,7 +306,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         <h2 class="card-title">Car Rental / Transfers</h2>
         <p class="card-desc">Bookings, confirmations, route planning, insurance upsell</p>
         <div class="potential"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot"></span></div>
-        <button class="btn btn-outline" onclick="launchScraper('rentacar','Car Rental / Transfers','rentacar.html')">Launch Scraper</button>
+        <button class="btn btn-outline" onclick="openConfigModal('Car Rental / Transfers')">Launch Scraper</button>
       </div>
       <div class="card suggested" style="--card-accent:#fb923c">
         <div class="card-top">
@@ -310,7 +316,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         <h2 class="card-title">Barbers / Salons</h2>
         <p class="card-desc">Bookings, confirmations, reminders, service upsell</p>
         <div class="potential"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
-        <button class="btn btn-outline" onclick="launchScraper('barbearias','Barbers / Salons','barbearias.html')">Launch Scraper</button>
+        <button class="btn btn-outline" onclick="openConfigModal('Barbers / Salons')">Launch Scraper</button>
       </div>
       <div class="card suggested" style="--card-accent:#38bdf8">
         <div class="card-top">
@@ -320,7 +326,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         <h2 class="card-title">Surf Shops</h2>
         <p class="card-desc">Inventory, rentals, repairs, product arrival notifications</p>
         <div class="potential"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
-        <button class="btn btn-outline" onclick="launchScraper('lojas_surf','Surf Shops','lojas_surf.html')">Launch Scraper</button>
+        <button class="btn btn-outline" onclick="openConfigModal('Surf Shops')">Launch Scraper</button>
       </div>
       <div class="card suggested" style="--card-accent:#f472b6">
         <div class="card-top">
@@ -330,7 +336,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         <h2 class="card-title">Surf Photographers</h2>
         <p class="card-desc">Photo delivery, session packs, booking management</p>
         <div class="potential"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
-        <button class="btn btn-outline" onclick="launchScraper('fotografos','Surf Photographers','fotografos.html')">Launch Scraper</button>
+        <button class="btn btn-outline" onclick="openConfigModal('Surf Photographers')">Launch Scraper</button>
       </div>
     </div>
   </section>
@@ -352,6 +358,26 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   </div>
 </footer>
 
+<div id="config-modal" class="modal-overlay">
+  <div class="modal-box" style="max-width:420px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h2>Configure Search</h2>
+      <button onclick="closeConfigModal()" style="background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:4px">&times;</button>
+    </div>
+    <div class="cfg-row">
+      <div>
+        <label class="cfg-label" for="cfg-city">City</label>
+        <input id="cfg-city" class="cfg-input" type="text" placeholder="e.g. São Paulo" autocomplete="off">
+      </div>
+      <div>
+        <label class="cfg-label" for="cfg-niche">Niche / Segment</label>
+        <input id="cfg-niche" class="cfg-input" type="text" placeholder="e.g. Clinics" autocomplete="off">
+      </div>
+    </div>
+    <button class="btn btn-fill" style="width:100%;padding:12px;font-size:14px" onclick="submitCustomScrape()">Search Leads →</button>
+  </div>
+</div>
+
 <div id="scraper-modal" class="modal-overlay">
   <div class="modal-box">
     <div style="display:flex;justify-content:space-between;align-items:center">
@@ -367,9 +393,51 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 <script>
 var _nicho=null,_dashboard=null,_poll=null;
-function launchScraper(n,l,d){_nicho=n;_dashboard=d;document.getElementById('modal-title').textContent=l;document.getElementById('modal-log').innerHTML='<span style="color:var(--accent)">Starting scraper...</span>';document.getElementById('modal-open-btn').style.display='none';document.getElementById('scraper-modal').className='modal-overlay open';fetch('/api/scrape/'+n).then(r=>r.json()).then(d=>{if(d.status==='already_running')appendLog('Already running...');startPolling()}).catch(e=>appendLog('Server not responding. Run: python3 server.py'))}
+
+function launchScraper(n,l,d){
+  _nicho=n;_dashboard=d;
+  document.getElementById('modal-title').textContent=l;
+  document.getElementById('modal-log').innerHTML='<span style="color:var(--accent)">Starting scraper...</span>';
+  document.getElementById('modal-open-btn').style.display='none';
+  document.getElementById('scraper-modal').className='modal-overlay open';
+  fetch('/api/scrape/'+n).then(r=>r.json()).then(d=>{
+    if(d.status==='already_running')appendLog('Already running...');
+    startPolling();
+  }).catch(e=>appendLog('Server not responding. Run: python3 server.py'));
+}
+
+function openConfigModal(prefilledNiche){
+  document.getElementById('cfg-city').value='';
+  document.getElementById('cfg-niche').value=prefilledNiche||'';
+  document.getElementById('config-modal').className='modal-overlay open';
+  document.getElementById('cfg-city').focus();
+}
+
+function closeConfigModal(){
+  document.getElementById('config-modal').className='modal-overlay';
+}
+
+function submitCustomScrape(){
+  var city=document.getElementById('cfg-city').value.trim();
+  var niche=document.getElementById('cfg-niche').value.trim();
+  if(!city||!niche){alert('Please fill in both city and niche.');return;}
+  closeConfigModal();
+  document.getElementById('modal-title').textContent=niche+' — '+city;
+  document.getElementById('modal-log').innerHTML='<span style="color:var(--accent)">Starting scraper...</span>';
+  document.getElementById('modal-open-btn').style.display='none';
+  document.getElementById('scraper-modal').className='modal-overlay open';
+  fetch('/api/scrape/custom?city='+encodeURIComponent(city)+'&niche='+encodeURIComponent(niche))
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.error){appendLog('❌ '+d.error);return;}
+      _nicho=d.nicho;_dashboard=d.dashboard;
+      if(d.status==='already_running')appendLog('Already running...');
+      startPolling();
+    }).catch(e=>appendLog('Server not responding. Run: python3 server.py'));
+}
+
 function startPolling(){if(_poll)clearInterval(_poll);_poll=setInterval(pollStatus,1500)}
-function pollStatus(){if(!_nicho)return;fetch('/api/status/'+_nicho).then(r=>r.json()).then(d=>{var el=document.getElementById('modal-log');el.innerHTML=(d.log||[]).map(l=>'<span style="color:'+(l.includes('Done')||l.includes('Complete')?'#16a34a':l.includes('Error')?'#dc2626':'var(--muted)')+'">'+l+'</span>').join('<br>');el.scrollTop=el.scrollHeight;if(d.status==='done'){clearInterval(_poll);document.getElementById('modal-open-btn').style.display='block';setTimeout(()=>location.reload(),2e3)}else if(d.status==='error')clearInterval(_poll)})}
+function pollStatus(){if(!_nicho)return;fetch('/api/status/'+_nicho).then(r=>r.json()).then(d=>{var el=document.getElementById('modal-log');el.innerHTML=(d.log||[]).map(l=>'<span style="color:'+(l.includes('Done')||l.includes('✅')||l.includes('🎉')?'#16a34a':l.includes('Error')||l.includes('❌')?'#dc2626':'var(--muted)')+'">'+l+'</span>').join('<br>');el.scrollTop=el.scrollHeight;if(d.status==='done'){clearInterval(_poll);document.getElementById('modal-open-btn').style.display='block';setTimeout(()=>location.reload(),2e3)}else if(d.status==='error')clearInterval(_poll)})}
 function appendLog(m){document.getElementById('modal-log').innerHTML+='<br>'+m}
 function openDashboard(){if(_dashboard)window.location.href=_dashboard}
 function closeScraperModal(){if(_poll)clearInterval(_poll);document.getElementById('scraper-modal').className='modal-overlay'}

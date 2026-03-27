@@ -1,47 +1,59 @@
-import os
 #!/usr/bin/env python3
 """
-Scraper Restaurantes Peniche - Potencial AI Agent
-1. Google Maps → lista de restaurantes com rating, reviews, phone, website
+Scraper de Leads — Google Maps + Instagram
+1. Google Maps → lista de negócios com rating, reviews, phone, website
 2. Google Search → Instagram handles
 3. Instagram Profile Scraper → métricas sociais
-4. Score composto: atividade social + volume reviews + sinais takeaway
+4. Score composto: atividade social + volume reviews + sinais digitais
+
+Uso padrão (Peniche, restaurantes):
+  python3 scraper_restaurantes.py
+
+Uso customizado:
+  python3 scraper_restaurantes.py --city "São Paulo" --niche "clínicas odontológicas"
 """
+import os, argparse
 import pandas as pd, re, math, json
 from apify_client import ApifyClient
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--city",   default="Peniche",      help="Cidade alvo")
+parser.add_argument("--niche",  default="restaurante",  help="Nicho / segmento")
+parser.add_argument("--output", default=None,           help="Caminho do Excel de saída")
+args, _ = parser.parse_known_args()
+
+CITY  = args.city
+NICHE = args.niche
+OUTPUT_PATH = args.output or "/Users/raphaelbruno/Documents/Prospeção - Agente AI/Restaurantes Zona Oeste.xlsx"
+
 APIFY_KEY = os.environ.get("APIFY_KEY", "")
-OUTPUT_PATH = "/Users/raphaelbruno/Documents/Prospeção - Agente AI/Restaurantes Zona Oeste.xlsx"
 SKIP_CHANNELS = {'p', 'explore', 'reel', 'reels', 'stories', 'accounts', 'tv', 'popular', ''}
 
-# Peniche: 39.3568749, -9.3786838 — raio ~15km cobre Baleal, Ferrel, Lourinhã sul
+# Coordenadas de Peniche (usadas apenas quando cidade = Peniche)
 PENICHE_LAT = 39.3568749
 PENICHE_LNG = -9.3786838
 
 client = ApifyClient(APIFY_KEY)
 
-# ── 1. Google Maps: raio 15km em torno de Peniche ────────────────────────────
-print("[1/4] Scraping Google Maps (raio 15km Peniche)...")
-run = client.actor("compass/crawler-google-places").call(run_input={
-    "searchStringsArray": [
-        "restaurante",
-        "restaurant",
-        "takeaway",
-        "pizza",
-        "cafe",
-        "snack bar",
-        "tasca",
-        "marisqueira",
-    ],
-    "lat": PENICHE_LAT,
-    "lng": PENICHE_LNG,
-    "zoom": 12,
+# ── 1. Google Maps ────────────────────────────────────────────────────────────
+print(f"[1/4] Scraping Google Maps — {NICHE} em {CITY}...")
+maps_params = {
+    "searchStringsArray": [NICHE],
     "maxCrawledPlacesPerSearch": 60,
     "language": "pt-PT",
     "maxReviews": 0,
     "exportPlaceUrls": False,
     "additionalInfo": True,
-})
+}
+if CITY.lower() == "peniche":
+    maps_params["lat"]  = PENICHE_LAT
+    maps_params["lng"]  = PENICHE_LNG
+    maps_params["zoom"] = 12
+else:
+    maps_params["locationQuery"] = CITY
+    maps_params["zoom"] = 14
+
+run = client.actor("compass/crawler-google-places").call(run_input=maps_params)
 
 places_raw = list(client.dataset(run["defaultDatasetId"]).iterate_items())
 print(f"  Lugares encontrados: {len(places_raw)}")
@@ -110,11 +122,11 @@ for p in places:
 
 df = pd.DataFrame(rows)
 names = df["Business Name"].tolist()
-print(f"\n  DataFrame: {len(df)} restaurantes")
+print(f"\n  DataFrame: {len(df)} negócios")
 
 # ── 3. Instagram handles via Google ──────────────────────────────────────────
 print("\n[2/4] Buscando Instagram handles...")
-queries = [f'site:instagram.com "{name}" peniche' for name in names]
+queries = [f'site:instagram.com "{name}" {CITY}' for name in names]
 run2 = client.actor("apify/google-search-scraper").call(run_input={
     "queries": "\n".join(queries),
     "resultsPerPage": 3,

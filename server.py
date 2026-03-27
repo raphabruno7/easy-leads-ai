@@ -4,8 +4,9 @@ Servidor local — serve dashboards + dispara scrapers via browser.
 Uso: python3 server.py
 Acesso: http://localhost:8080
 """
-import subprocess, sys, os, json, time, threading
+import subprocess, sys, os, json, time, threading, re
 from pathlib import Path
+from urllib.parse import urlparse, parse_qs
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 BASE = Path(__file__).parent
@@ -34,6 +35,9 @@ SCRAPERS = {
 
 PYTHON = sys.executable  # mesmo python que está a correr o server
 
+# Garante directório para scrapes customizados
+(BASE / "data").mkdir(exist_ok=True)
+
 def run_scraper(nicho):
     cfg = SCRAPERS.get(nicho)
     if not cfg:
@@ -49,7 +53,7 @@ def run_scraper(nicho):
         script = str(BASE / cfg["script"])
         append_log(f"▶ A correr {cfg['label']} scraper...")
         proc = subprocess.Popen(
-            [PYTHON, script],
+            [PYTHON, script] + cfg.get("script_args", []),
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             text=True, cwd=str(BASE)
         )
@@ -64,7 +68,10 @@ def run_scraper(nicho):
         # Regenerar dashboard
         append_log(f"✅ Dados recolhidos. A gerar dashboard...")
         dash_script = str(BASE / cfg["dashboard_script"])
-        r2 = subprocess.run([PYTHON, dash_script], capture_output=True, text=True, cwd=str(BASE))
+        r2 = subprocess.run(
+            [PYTHON, dash_script] + cfg.get("dashboard_script_args", []),
+            capture_output=True, text=True, cwd=str(BASE)
+        )
         if r2.returncode != 0:
             append_log(f"Aviso dashboard: {r2.stderr[:200]}")
         else:
@@ -113,6 +120,28 @@ class Handler(SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def _handle_scrape(self, nicho):
+        # Scrape customizado: /api/scrape/custom?city=X&niche=Y
+        if nicho == "custom":
+            params = parse_qs(urlparse(self.path).query)
+            city  = params.get("city",  [""])[0].strip()
+            niche = params.get("niche", [""])[0].strip()
+            if not city or not niche:
+                self._send_json({"error": "city and niche are required"}, 400)
+                return
+            key = re.sub(r"[^a-z0-9]", "_", f"{niche}_{city}".lower())[:40]
+            excel_path = str(BASE / "data" / f"{key}.xlsx")
+            dash_path  = str(BASE / f"leads_{key}.html")
+            SCRAPERS[key] = {
+                "label": f"{niche} — {city}",
+                "script": "scraper_restaurantes.py",
+                "script_args": ["--city", city, "--niche", niche, "--output", excel_path],
+                "dashboard_script": "generate_dashboard_restaurantes.py",
+                "dashboard_script_args": ["--excel", excel_path, "--output", dash_path],
+                "dashboard": f"leads_{key}.html",
+                "excel": f"data/{key}.xlsx",
+            }
+            nicho = key
+
         if nicho not in SCRAPERS:
             self._send_json({"error": "nicho desconhecido"}, 404)
             return
@@ -123,7 +152,7 @@ class Handler(SimpleHTTPRequestHandler):
             return
         t = threading.Thread(target=run_scraper, args=(nicho,), daemon=True)
         t.start()
-        self._send_json({"status": "started", "nicho": nicho})
+        self._send_json({"status": "started", "nicho": nicho, "dashboard": SCRAPERS[nicho]["dashboard"]})
 
     def _handle_status(self, nicho):
         with scraper_lock:

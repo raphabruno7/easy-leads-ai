@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
-import pandas as pd, json, html, math
+import argparse, pandas as pd, json, html, math
 from pathlib import Path
 
-EXCEL = "/Users/raphaelbruno/Documents/Prospeção - Agente AI/Restaurantes Peniche Enriched.xlsx"
-OUT   = "/Users/raphaelbruno/Documents/Prospeção - Agente AI/restaurantes.html"
+parser = argparse.ArgumentParser()
+parser.add_argument("--excel",  default="/Users/raphaelbruno/Documents/Prospeção - Agente AI/Restaurantes Peniche Enriched.xlsx")
+parser.add_argument("--output", default="/Users/raphaelbruno/Documents/Prospeção - Agente AI/restaurantes.html")
+args, _ = parser.parse_known_args()
+
+EXCEL = args.excel
+OUT   = args.output
 
 df = pd.read_excel(EXCEL)
 df = df.where(pd.notna(df), None)
