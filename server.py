@@ -128,13 +128,19 @@ class Handler(SimpleHTTPRequestHandler):
             if not city or not niche:
                 self._send_json({"error": "city and niche are required"}, 400)
                 return
+            try:
+                zoom = int(params.get("zoom", ["14"])[0])
+                if not (11 <= zoom <= 16):
+                    zoom = 14
+            except ValueError:
+                zoom = 14
             key = re.sub(r"[^a-z0-9]", "_", f"{niche}_{city}".lower())[:40]
             excel_path = str(BASE / "data" / f"{key}.xlsx")
             dash_path  = str(BASE / f"leads_{key}.html")
             SCRAPERS[key] = {
                 "label": f"{niche} — {city}",
                 "script": "scraper_restaurantes.py",
-                "script_args": ["--city", city, "--niche", niche, "--output", excel_path],
+                "script_args": ["--city", city, "--niche", niche, "--zoom", str(zoom), "--output", excel_path],
                 "dashboard_script": "generate_dashboard_restaurantes.py",
                 "dashboard_script_args": ["--excel", excel_path, "--output", dash_path],
                 "dashboard": f"leads_{key}.html",

@@ -19,11 +19,13 @@ from apify_client import ApifyClient
 parser = argparse.ArgumentParser()
 parser.add_argument("--city",   default="Peniche",      help="Cidade alvo")
 parser.add_argument("--niche",  default="restaurante",  help="Nicho / segmento")
+parser.add_argument("--zoom",   type=int, default=None, help="Zoom level Apify (11-16)")
 parser.add_argument("--output", default=None,           help="Caminho do Excel de saída")
 args, _ = parser.parse_known_args()
 
 CITY  = args.city
 NICHE = args.niche
+ZOOM  = args.zoom
 OUTPUT_PATH = args.output or "/Users/raphaelbruno/Documents/Prospeção - Agente AI/Restaurantes Zona Oeste.xlsx"
 
 APIFY_KEY = os.environ.get("APIFY_KEY", "")
@@ -45,13 +47,13 @@ maps_params = {
     "exportPlaceUrls": False,
     "additionalInfo": True,
 }
-if CITY.lower() == "peniche":
+if CITY.lower() == "peniche" and ZOOM is None:
     maps_params["lat"]  = PENICHE_LAT
     maps_params["lng"]  = PENICHE_LNG
     maps_params["zoom"] = 12
 else:
     maps_params["locationQuery"] = CITY
-    maps_params["zoom"] = 14
+    maps_params["zoom"] = ZOOM if ZOOM is not None else 14
 
 run = client.actor("compass/crawler-google-places").call(run_input=maps_params)
 
