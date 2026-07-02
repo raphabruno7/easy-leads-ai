@@ -13,8 +13,25 @@ Uso customizado:
   python3 scraper_restaurantes.py --city "São Paulo" --niche "clínicas odontológicas"
 """
 import os, argparse
+from pathlib import Path
 import pandas as pd, re, math, json
 from apify_client import ApifyClient
+
+
+def _load_env_files():
+    for path in [Path(__file__).resolve().parent / ".env",
+                 Path.home() / ".easy-leads" / "arcus.env"]:
+        if not path.exists():
+            continue
+        for line in path.read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip())
+
+
+_load_env_files()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--city",   default="Peniche",      help="Cidade alvo")
@@ -25,20 +42,20 @@ args, _ = parser.parse_known_args()
 
 CITY  = args.city
 NICHE = args.niche
-ZOOM  = args.zoom
+DEFAULT_ZOOM = int(os.environ.get("EASY_LEADS_ZOOM", "11"))  # 11 ≈ 20km em 39°N
+ZOOM  = args.zoom if args.zoom is not None else DEFAULT_ZOOM
 OUTPUT_PATH = args.output or "/Users/raphaelbruno/Documents/Prospeção - Agente AI/Restaurantes Zona Oeste.xlsx"
 
 APIFY_KEY = os.environ.get("APIFY_KEY", "")
 SKIP_CHANNELS = {'p', 'explore', 'reel', 'reels', 'stories', 'accounts', 'tv', 'popular', ''}
 
-# Coordenadas de Peniche (usadas apenas quando cidade = Peniche)
 PENICHE_LAT = 39.3568749
 PENICHE_LNG = -9.3786838
 
 client = ApifyClient(APIFY_KEY)
 
 # ── 1. Google Maps ────────────────────────────────────────────────────────────
-print(f"[1/4] Scraping Google Maps — {NICHE} em {CITY}...")
+print(f"[1/4] Scraping Google Maps — {NICHE} em {CITY} (zoom {ZOOM})...")
 maps_params = {
     "searchStringsArray": [NICHE],
     "maxCrawledPlacesPerSearch": 60,
@@ -46,14 +63,13 @@ maps_params = {
     "maxReviews": 0,
     "exportPlaceUrls": False,
     "additionalInfo": True,
+    "zoom": ZOOM,
 }
-if CITY.lower() == "peniche" and ZOOM is None:
-    maps_params["lat"]  = PENICHE_LAT
-    maps_params["lng"]  = PENICHE_LNG
-    maps_params["zoom"] = 12
+if CITY.lower() == "peniche":
+    maps_params["lat"] = PENICHE_LAT
+    maps_params["lng"] = PENICHE_LNG
 else:
     maps_params["locationQuery"] = CITY
-    maps_params["zoom"] = ZOOM if ZOOM is not None else 14
 
 run = client.actor("compass/crawler-google-places").call(run_input=maps_params)
 
@@ -119,6 +135,8 @@ for p in places:
         "Seguidores": None,
         "Posts": None,
         "Bio": "",
+        "IG Full Name": "",
+        "IG Website": "",
         "Score AI Potencial": 0,
     })
 
@@ -177,9 +195,11 @@ if handles:
         handle = handles.get(name, "")
         p = profiles.get(handle.lower(), {})
         if p:
-            df.at[idx, "Seguidores"] = p.get("followersCount")
-            df.at[idx, "Posts"] = p.get("postsCount")
-            df.at[idx, "Bio"] = p.get("biography", "")
+            df.at[idx, "Seguidores"]   = p.get("followersCount")
+            df.at[idx, "Posts"]        = p.get("postsCount")
+            df.at[idx, "Bio"]          = p.get("biography", "")
+            df.at[idx, "IG Full Name"] = p.get("fullName", "")
+            df.at[idx, "IG Website"]   = p.get("externalUrl", "")
 
 # ── 5. Score AI Potencial ────────────────────────────────────────────────────
 print("\n[4/4] Calculando Score AI Potencial...")
