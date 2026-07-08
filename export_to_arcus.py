@@ -55,6 +55,13 @@ def normalize_phone_pt(raw):
     return None  # rejeita números ambíguos
 
 
+def clean_str(val):
+    """Extrai string de uma célula do Excel, tratando NaN do pandas como vazio (nan é truthy em Python)."""
+    if val is None or pd.isna(val):
+        return ""
+    return str(val).strip()
+
+
 def score_bucket(score):
     if score >= 80: return "score-80+"
     if score >= 60: return "score-60-79"
@@ -79,13 +86,13 @@ def build_notes(row, niche_cfg, lang="pt"):
         parts.append(f"{int(reviews)} reviews")
     if rating and not pd.isna(rating):
         parts.append(f"{rating}⭐")
-    ig = row.get("Instagram Handle")
+    ig = clean_str(row.get("Instagram Handle"))
     followers = format_ig_followers(row.get("Seguidores"))
     if ig:
         s = f"IG: {ig}"
         if followers: s += f" ({followers})"
         parts.append(s)
-    website = row.get("Website")
+    website = clean_str(row.get("Website"))
     if website:
         parts.append(f"Web: {website}")
     head = " | ".join(parts)
@@ -132,8 +139,8 @@ def upsert_company(name, website, env):
 
 def create_contact(row, niche_key, niche_cfg, env):
     phone = normalize_phone_pt(row.get("Phone"))
-    name = (row.get("Business Name") or "").strip()
-    website = (row.get("Website") or "").strip() or None
+    name = clean_str(row.get("Business Name"))
+    website = clean_str(row.get("Website")) or None
     score = int(row.get("Score AI Potencial") or 0)
 
     company_id = upsert_company(name, website, env)
@@ -164,8 +171,8 @@ def qualifies(row, qualification):
         if not normalize_phone_pt(row.get("Phone")):
             return False, "phone_invalid"
     if qualification["require_web_or_instagram"]:
-        has_web = bool((row.get("Website") or "").strip())
-        has_ig = bool((row.get("Instagram Handle") or "").strip())
+        has_web = bool(clean_str(row.get("Website")))
+        has_ig = bool(clean_str(row.get("Instagram Handle")))
         if not (has_web or has_ig):
             return False, "no_web_no_ig"
     return True, None
@@ -200,7 +207,7 @@ def process_niche(niche_key, niche_cfg, qualification, env, args):
             break
 
         phone = normalize_phone_pt(row.get("Phone"))
-        name = (row.get("Business Name") or "").strip()
+        name = clean_str(row.get("Business Name"))
 
         if args.dry_run:
             print(f"  [DRY] {name} · {phone} · score {row.get('Score AI Potencial')}")
